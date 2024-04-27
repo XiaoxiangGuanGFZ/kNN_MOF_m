@@ -1,0 +1,195 @@
+------ Global parameter import completed: Fri Apr 26 16:10:26 2024
+FP_DAILY: ../data/dly_air_temperature.csv
+FP_HOULY: ../data/hly_air_temperature.csv
+FP_OUT:   ../output/sim_air_temperature.csv
+FP_LOG:   ../my.log
+------ Disaggregation parameters: -----
+MONTH: TRUE
+N_STATION: 194
+CONTINUITY: 1
+SEASON: FALSE
+SSIM_K: 0.010000,0.030000,0.021200
+SSIM_power: 1.000000,1.000000,1.000000
+NODATA: -999.000000
+------ Import daily rr data (Done): Fri Apr 26 16:10:26 2024
+* the total rows: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Import hourly rr data (Done): Fri Apr 26 16:10:32 2024
+* total hourly obs days: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Disaggregation daily2hourly (Done): Fri Apr 26 16:14:07 2024
+------ Global parameter import completed: Sat Apr 27 12:20:44 2024
+FP_DAILY: ../data/dly_air_temperature.csv
+FP_HOULY: ../data/hly_air_temperature.csv
+FP_OUT:   ../output/sim_air_temperature.csv
+FP_LOG:   ../my.log
+------ Disaggregation parameters: -----
+MONTH: TRUE
+N_STATION: 194
+CONTINUITY: 3
+SEASON: FALSE
+SSIM_K: 0.010000,0.030000,0.021200
+SSIM_power: 1.000000,1.000000,1.000000
+NODATA: -999.000000
+------ Import daily rr data (Done): Sat Apr 27 12:20:45 2024
+* the total rows: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Import hourly rr data (Done): Sat Apr 27 12:20:50 2024
+* total hourly obs days: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Disaggregation daily2hourly (Done): Sat Apr 27 12:29:41 2024
+------ Global parameter import completed: Sat Apr 27 12:44:36 2024
+FP_DAILY: ../data/dly_wind.csv
+FP_HOULY: ../data/hly_wind.csv
+FP_OUT:   ../output/sim_wind.csv
+FP_LOG:   ../my.log
+------ Disaggregation parameters: -----
+MONTH: TRUE
+N_STATION: 196
+CONTINUITY: 1
+SEASON: FALSE
+SSIM_K: 0.010000,0.030000,0.021200
+SSIM_power: 1.000000,1.000000,1.000000
+NODATA: -999.000000
+------ Import daily rr data (Done): Sat Apr 27 12:44:36 2024
+* the total rows: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Import hourly rr data (Done): Sat Apr 27 12:44:41 2024
+* total hourly obs days: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Global parameter import completed: Sat Apr 27 12:45:15 2024
+FP_DAILY: ../data/dly_wind.csv
+FP_HOULY: ../data/hly_wind.csv
+FP_OUT:   ../output/sim_wind.csv
+FP_LOG:   ../my.log
+------ Disaggregation parameters: -----
+MONTH: TRUE
+N_STATION: 196
+CONTINUITY: 1
+SEASON: FALSE
+SSIM_K: 0.010000,0.030000,0.021200
+SSIM_power: 1.000000,1.000000,1.000000
+NODATA: -999.000000
+------ Import daily rr data (Done): Sat Apr 27 12:45:15 2024
+* the total rows: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Import hourly rr data (Done): Sat Apr 27 12:45:22 2024
+* total hourly obs days: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Disaggregation daily2hourly (Done): Sat Apr 27 12:48:28 2024
+------ Global parameter import completed: Sat Apr 27 13:42:38 2024
+FP_DAILY: ../data/dly_rhu.csv
+FP_HOULY: ../data/hly_rhu.csv
+FP_OUT:   ../output/sim_rhu.csv
+FP_LOG:   ../my.log
+------ Disaggregation parameters: -----
+MONTH: TRUE
+N_STATION: 193
+CONTINUITY: 1
+SEASON: FALSE
+SSIM_K: 0.010000,0.030000,0.021200
+SSIM_power: 1.000000,1.000000,1.000000
+NODATA: -999.000000
+------ Import daily rr data (Done): Sat Apr 27 13:42:38 2024
+* the total rows: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Import hourly rr data (Done): Sat Apr 27 13:42:42 2024
+* total hourly obs days: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Disaggregation daily2hourly (Done): Sat Apr 27 13:46:13 2024
+------ Global parameter import completed: Sat Apr 27 14:04:56 2024
+FP_DAILY: ../data/dly_rhu.csv
+FP_HOULY: ../data/hly_rhu.csv
+FP_OUT:   ../output/sim_rhu.csv
+FP_LOG:   ../my.log
+------ Disaggregation parameters: -----
+MONTH: TRUE
+N_STATION: 168
+CONTINUITY: 1
+SEASON: FALSE
+SSIM_K: 0.010000,0.030000,0.021200
+SSIM_power: 1.000000,1.000000,1.000000
+NODATA: -999.000000
+------ Import daily rr data (Done): Sat Apr 27 14:04:56 2024
+* the total rows: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Import hourly rr data (Done): Sat Apr 27 14:04:59 2024
+* total hourly obs days: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Disaggregation daily2hourly (Done): Sat Apr 27 14:07:58 2024
+------ Global parameter import completed: Sat Apr 27 14:12:16 2024
+FP_DAILY: ../data/dly_pressure.csv
+FP_HOULY: ../data/hly_pressure.csv
+FP_OUT:   ../output/sim_pressure.csv
+FP_LOG:   ../my.log
+------ Disaggregation parameters: -----
+MONTH: TRUE
+N_STATION: 168
+CONTINUITY: 1
+SEASON: FALSE
+SSIM_K: 0.010000,0.030000,0.021200
+SSIM_power: 1.000000,1.000000,1.000000
+NODATA: -999.000000
+------ Import daily rr data (Done): Sat Apr 27 14:12:16 2024
+* the total rows: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Import hourly rr data (Done): Sat Apr 27 14:12:23 2024
+* total hourly obs days: 7305
+* the first day: 2004-01-01
+* the last day:  2023-12-31
+* class-counts:
+   - class:     1     2     3     4     5     6     7     8     9    10    11    12 
+   - count:   620   565   620   600   620   600   620   620   600   620   600   620 
+------ Disaggregation daily2hourly (Done): Sat Apr 27 14:15:10 2024

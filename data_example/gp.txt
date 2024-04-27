@@ -1,0 +1,47 @@
+#-------------------
+# global parameters
+# key-value pairs, separated by comma "," 
+#-------------------
+
+# ------- disaggregation setup ---------
+VAR,0
+# the file path and name of daily rr data to be disaggregated
+FP_DAILY,../data_example/dly_air_temperature.csv
+
+# the file path and name of the observed hourly rainfall data
+FP_HOURLY,../data_example/hly_air_temperature.csv
+
+# the file path to store the disaggregated hourly rr results
+FP_OUT,../output/sim_air_temperature.csv
+
+FP_LOG,../my.log
+
+# ------- the parameters in kNN_MOF_SSIM algorithm ---------
+# number of the rain stations
+N_STATION,194
+
+# T_CP == TRUE: the disaggregation algorithm conditioned on circulation patterns
+# otherwise, on seasonality (12 months) only
+MONTH,TRUE
+
+# SEASON: only valid when T_CP == TRUE; meaning that the disaggregation is conditioned both
+# on cp and seasonality (two seasons: summer and winter)
+# summer: from May to October (5-10)
+# winter: from November to next April (11-4)
+SEASON,FALSE
+
+SUMMER_FROM,5
+
+SUMMER_TO,10
+
+# the CONTINUITY in candidates filtering; 1 or 3
+CONTINUITY,1
+
+# Structural Similarity Index (SSIM) parameters
+SSIM_K,0.01,0.03,0.0212
+
+SSIM_POWER,1,1,1
+
+NODATA,-999
+
+RUN,3

@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "func_fragments.h": "c",
+        "def_struct.h": "c"
+    }
+}
