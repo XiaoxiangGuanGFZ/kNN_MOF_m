@@ -87,13 +87,48 @@ int main(int argc, char * argv[]) {
             p_gp->k[0], p_gp->k[1], p_gp->k[2], p_gp->power[0], p_gp->power[1], p_gp->power[2],
             p_gp->NODATA);
 
+    /******* import circulation pattern series *********/
+    
+    static struct df_cp df_cps[MAXrow];
+    int nrow_cp=0;  // the number of CP data columns: 4 (y, m, d, cp)
+    if (strncmp(p_gp->T_CP, "TRUE", 4) == 0) {
+        nrow_cp = import_df_cp(Para_df.FP_CP, df_cps);
+        time(&tm);
+        printf("------ Import CP data series (Done): %s", ctime(&tm)); 
+        fprintf(p_log, "------ Import CP data series (Done): %s", ctime(&tm));
 
+        printf("* number of CP data rows: %d\n", nrow_cp); 
+        fprintf(p_log, "* number of CP data rows: %d\n", nrow_cp);
+
+        printf("* the first day: %d-%02d-%02d \n", df_cps[0].date.y, df_cps[0].date.m, df_cps[0].date.d);
+        fprintf(p_log, "* the first day: %d-%02d-%02d \n", df_cps[0].date.y, df_cps[0].date.m, df_cps[0].date.d);
+        
+        printf("* the last day:  %d-%02d-%02d \n", 
+            df_cps[nrow_cp-1].date.y, df_cps[nrow_cp-1].date.m, df_cps[nrow_cp-1].date.d
+        );
+        fprintf(p_log, "* the last day:  %d-%02d-%02d \n", 
+            df_cps[nrow_cp-1].date.y, df_cps[nrow_cp-1].date.m, df_cps[nrow_cp-1].date.d
+        );
+    } 
+    if (strncmp(p_gp->MONTH, "TRUE", 4) == 0)
+    {
+        time(&tm);
+        printf("------ Disaggregation conditioned on 12 months: %s", ctime(&tm));
+        fprintf(p_log, "------ Disaggregation conditioned on 12 months: %s", ctime(&tm));
+    }
+    else if (strncmp(p_gp->SEASON, "TRUE", 4) == 0)
+    {
+        time(&tm);
+        printf("------ Disaggregation conditioned on seasonality-summer and winter: %s", ctime(&tm));
+        fprintf(p_log, "------ Disaggregation conditioned on seasonality-summer and winter: %s", ctime(&tm));
+    }
+    
     /****** import daily rainfall data (to be disaggregated) *******/
     
     static struct df_rr_d df_rr_daily[MAXrow];
     int nrow_rr_d;
     nrow_rr_d = import_dfrr_d(Para_df.FP_DAILY, Para_df.N_STATION, df_rr_daily);
-    initialize_dfrr_d(p_gp, df_rr_daily, nrow_rr_d);
+    initialize_dfrr_d(p_gp, df_rr_daily, df_cps, nrow_rr_d, nrow_cp);
     
     time(&tm);
     printf("------ Import daily rr data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import daily rr data (Done): %s", ctime(&tm));
@@ -120,8 +155,8 @@ int main(int argc, char * argv[]) {
     int ndays_h;
     static struct df_rr_h df_rr_hourly[MAXrow];
     ndays_h = import_dfrr_h(p_gp, Para_df.FP_HOURLY, Para_df.N_STATION, df_rr_hourly);
-    initialize_dfrr_h(p_gp, df_rr_hourly, ndays_h);
     
+    initialize_dfrr_h(p_gp, df_rr_hourly, df_cps, ndays_h, nrow_cp);
     time(&tm);
     printf("------ Import hourly rr data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import hourly rr data (Done): %s", ctime(&tm));
     

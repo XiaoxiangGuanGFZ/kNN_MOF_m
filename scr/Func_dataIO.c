@@ -226,34 +226,71 @@ int import_dfrr_d(
     return i;
 }
 
-int import_df_coor(
+
+int import_df_cp(
     char fname[],
-    struct df_coor *p_df_coor
-)
-{
-    /*************************************
-     * read the geographic positions of rain sites: 
-     * coordinates: longitude and latitude
-    */
-    FILE *fp;
-    if ((fp=fopen(fname, "r")) == NULL) {
-        printf("Cannot open daily rr data file: %s\n", fname);
+    struct df_cp *p_df_cp
+) {
+    /*********************
+    * Main function:
+    *     import the circulation pattern classification results
+    * Parameters:
+    *     fname: the file path, together with the file name of CP data
+    * Return:
+    *     bring back struct array of cp data to main() function;
+    *     the return value of the function: the number of rows in the data file
+    *********************/
+    FILE *fp_cp;
+    char row[MAXCHAR];
+    char *token;
+    int j = 0;  // from the first row 
+    if ((fp_cp=fopen(fname, "r")) == NULL) {
+        printf("Cannot open cp data file: %s\n", fname);
         exit(1);
     }
-    int i, j;
-    i = 0;  // record the number of rows in the data file
-    char *token;
-    char row[MAXCHAR];
-    while (fgets(row, MAXCHAR, fp) != NULL)
+    while (fgets(row, MAXCHAR, fp_cp) != NULL)
     {
-        (p_df_coor + i)->id = atoi(strtok(row, ",")); 
-        (p_df_coor + i)->lon = atof(strtok(NULL, ","));
-        (p_df_coor + i)->lat = atof(strtok(NULL, ","));
-        i++;
-    }
-    fclose(fp);
-    return i;
+        // the fgets() function comes from <stdbool.h>
+        // Reads characters from stream and stores them as a C string
+        token = strtok(row, ",");  
+        p_df_cp[j].date.y = atoi(token);
+        p_df_cp[j].date.m = atoi(strtok(NULL, ","));
+        p_df_cp[j].date.d = atoi(strtok(NULL, ","));
+        p_df_cp[j].cp = atoi(strtok(NULL, ","));
+        j++;
+    } 
+    fclose(fp_cp);
+    return j;  // the number of rows; the last row is null
 }
+
+// int import_df_coor(
+//     char fname[],
+//     struct df_coor *p_df_coor
+// )
+// {
+//     /*************************************
+//      * read the geographic positions of rain sites: 
+//      * coordinates: longitude and latitude
+//     */
+//     FILE *fp;
+//     if ((fp=fopen(fname, "r")) == NULL) {
+//         printf("Cannot open daily rr data file: %s\n", fname);
+//         exit(1);
+//     }
+//     int i, j;
+//     i = 0;  // record the number of rows in the data file
+//     char *token;
+//     char row[MAXCHAR];
+//     while (fgets(row, MAXCHAR, fp) != NULL)
+//     {
+//         (p_df_coor + i)->id = atoi(strtok(row, ",")); 
+//         (p_df_coor + i)->lon = atof(strtok(NULL, ","));
+//         (p_df_coor + i)->lat = atof(strtok(NULL, ","));
+//         i++;
+//     }
+//     fclose(fp);
+//     return i;
+// }
 
 
 int import_dfrr_h(
