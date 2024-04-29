@@ -113,9 +113,9 @@ void kNN_MOF_SSIM(
         }
         
         int index = 0;
-        if (p_gp->VAR == 4)
+        if (p_gp->VAR == 4 || p_gp->VAR == 1)
         {
-            /* check the 0 and non-zero for sunshine duration */
+            /* check the 0 and non-zero for sunshine duration and wind speed */
             for (j = 0; j < n_can; j++)
             {
                 if (SUN_zero_fit(p_gp->N_STATION, (p_rrd + i)->p_rr, (p_rrh + pool_cans[j])->rr_d) == 1)

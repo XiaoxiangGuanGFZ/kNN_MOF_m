@@ -26,6 +26,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "def_struct.h"
 #include "Func_Fragments.h"
 
@@ -82,7 +83,7 @@ void Fragment_assign(
      *      p_out
      * *******/
     int j, h;
-    if (p_gp->VAR == 4)
+    if (p_gp->VAR == 4 || p_gp->VAR == 1)
     {
         /************
          * VAR
@@ -98,6 +99,11 @@ void Fragment_assign(
                     p_out->rr_h[j][h] = 0.0;
                 }
             } else {
+                if ((p_rrh + fragment)->rr_d[j] <= 0.0)
+                {
+                    printf("fragment: %d\n", fragment);
+                    exit(1);
+                }
                 for (h = 0; h < 24; h++)
                 {
                     p_out->rr_h[j][h] = p_out->rr_d[j] * (p_rrh + fragment)->rr_h[j][h] / (p_rrh + fragment)->rr_d[j];
@@ -127,7 +133,7 @@ void Fragment_assign(
     }
     else
     {
-        // for other weather variables: rhu, pressure, wind
+        // for other weather variables: rhu, pressure
         for (j = 0; j < p_gp->N_STATION; j++)
         {
             for (h = 0; h < 24; h++)
@@ -136,5 +142,35 @@ void Fragment_assign(
             }
         }
     }
+
+    /***************
+     * boundary for climate variable: sunshine duration (60 min) and relative humidity 100 %
+     * *********/
+    if (p_gp->VAR == 3)
+    {
+        for (j = 0; j < p_gp->N_STATION; j++)
+        {
+            for (h = 0; h < 24; h++)
+            {
+                if (p_out->rr_h[j][h] > 100)
+                {
+                    p_out->rr_h[j][h] = 100;
+                }
+            }
+        }
+    } else if (p_gp->VAR == 4)
+    {
+        for (j = 0; j < p_gp->N_STATION; j++)
+        {
+            for (h = 0; h < 24; h++)
+            {
+                if (p_out->rr_h[j][h] > 60)
+                {
+                    p_out->rr_h[j][h] = 60;
+                }
+            }
+        }
+    }
+    
 }
 
