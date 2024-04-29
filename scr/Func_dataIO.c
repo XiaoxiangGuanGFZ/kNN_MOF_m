@@ -89,9 +89,10 @@ void import_global(
                 if (strncmp(token, "FP_DAILY", 8) == 0) {
                     strcpy(p_gp->FP_DAILY, token2);
                 }
-                // } else if (strncmp(token, "FP_CP", 5) == 0) {
-                //     strcpy(p_gp->FP_CP, token2);
-                // } else if (strncmp(token, "FP_COOR", 7) == 0) {
+                else if (strncmp(token, "FP_CP", 5) == 0) {
+                    strcpy(p_gp->FP_CP, token2);
+                } 
+                // else if (strncmp(token, "FP_COOR", 7) == 0) {
                 //     strcpy(p_gp->FP_COOR, token2);
                 // } 
                 else if (strncmp(token, "VAR", 9) == 0) {
@@ -120,14 +121,14 @@ void import_global(
                 } 
                 else if (strncmp(token, "SUMMER_TO", 9) == 0) {
                     p_gp->SUMMER_TO = atoi(token2);   
-                } 
-                // else if (strncmp(token, "T_CP", 4) == 0) {
-                //     strcpy(p_gp->T_CP, token2);
-                // }                 
+                }
+                else if (strncmp(token, "T_CP", 4) == 0) {
+                    strcpy(p_gp->T_CP, token2);
+                }
                 // else if (strncmp(token, "WD", 2) == 0) {
                 //     p_gp->WD = atoi(token2);
-                // } 
-                
+                // }
+
                 else if (strncmp(token, "CONTINUITY", 10) == 0) {
                     p_gp->CONTINUITY = atoi(token2);   
                 } 
