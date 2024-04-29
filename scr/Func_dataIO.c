@@ -368,6 +368,24 @@ int import_dfrr_h(
             }
         }
     }
+    else if (p_gp->VAR == 5)
+    {
+        /*******
+         * VAR: solar radiation
+         * ***/
+        for (p_df_rr_h = p_rr_h; p_df_rr_h < p_rr_h + ndays; p_df_rr_h++)
+        {
+            p_df_rr_h->rr_d = (double *)malloc(N_STATION * sizeof(double)); // allocate memory (stack)
+            for (j = 0; j < N_STATION; j++)
+            {
+                *(p_df_rr_h->rr_d + j) = 0;
+                for (h = 0; h < 24; h++)
+                {
+                    *(p_df_rr_h->rr_d + j) += p_df_rr_h->rr_h[j][h];   // the sum (total)
+                }
+            }
+        }
+    }
     else 
     {
         /*******

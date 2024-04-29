@@ -158,7 +158,8 @@ void Fragment_assign(
                 }
             }
         }
-    } else if (p_gp->VAR == 4)
+    }
+    else if (p_gp->VAR == 4)
     {
         for (j = 0; j < p_gp->N_STATION; j++)
         {
@@ -171,6 +172,5 @@ void Fragment_assign(
             }
         }
     }
-    
 }
 
