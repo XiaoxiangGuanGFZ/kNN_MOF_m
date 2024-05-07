@@ -39,7 +39,7 @@ int SUN_zero_fit(
     int match = 1;
     for (size_t i = 0; i < N_STATION; i++)
     {
-        if (*(target + i) > 0.0 && *(can + i) <= 0.0)
+        if (*(target + i) > 0.0 && *(can + i) <= 0.05)
         {
             match = 0;
             break;
@@ -91,7 +91,7 @@ void Fragment_assign(
          * ********/
         for (j = 0; j < p_gp->N_STATION; j++)
         {
-            if (p_out->rr_d[j] == 0.0)
+            if (p_out->rr_d[j] <= 0.05)
             {
                 // a fully cloudy day, no sunshine
                 for (h = 0; h < 24; h++)
