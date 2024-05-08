@@ -1,11 +1,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "def_struct.h"
 #include "Func_kNN.h"
 #include "Func_Covariate.h"
+#include "Func_Fragments.h"
+#include "Func_dataIO.h"
+#include "Func_SSIM.h"
 
-
+extern 
 void kNN_MOF_cov(
     struct df_rr_h *p_rrh,
     struct df_rr_d *p_rrd,
@@ -47,7 +51,8 @@ void kNN_MOF_cov(
     int fragment;          // the index of df_rr_h structure with the final chosed fragments
 
     FILE *p_FP_OUT;
-    if ((p_FP_OUT=fopen(p_gp->FP_OUT, "w")) == NULL) {
+    if ((p_FP_OUT = fopen(p_gp->FP_OUT, "w")) == NULL)
+    {
         printf("Program terminated: cannot create or open output file\n");
         exit(1);
     }
@@ -114,9 +119,14 @@ void kNN_MOF_cov(
          * Covariate
          * - air temperature
          * ******************/
+        n_can = index;
         double *SSIM_cov;
         double *SSIM_var;
         double *SSIM;
+        SSIM_cov = (double *)malloc(n_can * sizeof(double)); 
+        SSIM_var = (double *)malloc(n_can * sizeof(double)); 
+        SSIM = (double *)malloc(n_can * sizeof(double)); // the SSIM between target day and candidate days
+
         int skip_temp;
         if (i >= skip && i < nrow_rr_d - skip)
         {
@@ -125,15 +135,6 @@ void kNN_MOF_cov(
             skip_temp = 0;
         }
         similarity_SSIM(
-            p_rrd_cov,
-            p_rrh_cov,
-            p_gp,
-            i,
-            pool_cans,
-            n_can,
-            skip_temp,
-            &SSIM_cov);
-        similarity_SSIM(
             p_rrd,
             p_rrh,
             p_gp,
@@ -141,18 +142,41 @@ void kNN_MOF_cov(
             pool_cans,
             n_can,
             skip_temp,
-            &SSIM_var);
-        for (size_t j = 0; j < n_can; j++)
+            SSIM_var);
+        similarity_SSIM(
+            p_rrd_cov,
+            p_rrh_cov,
+            p_gp,
+            i,
+            pool_cans,
+            n_can,
+            skip_temp,
+            SSIM_cov);
+        
+        for (j = 0; j < n_can; j++)
         {
             *(SSIM + j) = 0.5 * (*(SSIM_cov + j) + *(SSIM_var + j)); // average weight
+            // printf("SSIM: %f\n", *(SSIM + j));
         }
 
+        /*******
+         * sample the candidates, assign the fragments and then write the output
+         * *****/
         int *index_fragment;
         index_fragment = (int *)malloc(sizeof(int) * p_gp->RUN);
         kNN_sampling(SSIM, pool_cans, order, n_can, p_gp->RUN, index_fragment);
-        /*assign the sampled fragments to target day (disaggregation)*/
+
+        int size_pool; // the k in kNN
+        size_pool = (int)sqrt(n_can) + 1;
+        for (j = 0; j < size_pool; j++)
+        {
+            fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd + i)->date.y, (p_rrd + i)->date.m, (p_rrd + i)->date.d);
+            fprintf(p_SSIM, "%d,%d,%f,", j, pool_cans[j], SSIM[j]);
+            fprintf(p_SSIM, "%d-%02d-%02d\n", (p_rrh + pool_cans[j])->date.y, (p_rrh + pool_cans[j])->date.m, (p_rrh + pool_cans[j])->date.d);
+        }
         for (size_t t = 0; t < p_gp->RUN; t++)
         {
+            /*assign the sampled fragments to target day (disaggregation)*/
             Fragment_assign(p_rrh, &df_rr_h_out, p_gp, index_fragment[t]);
             /* write the disaggregation output */
             Write_df_rr_h(&df_rr_h_out, p_gp, p_FP_OUT, t + 1);
@@ -174,7 +198,7 @@ void similarity_SSIM(
     int *pool_cans,
     int n_can,
     int skip,
-    double **SSIM
+    double *SSIM
 )
 {
     double w_image[5] = {0.08333333, 0.1666667, 0.5, 0.1666667, 0.08333333};  // CONTUNITY == 5
@@ -192,18 +216,14 @@ void similarity_SSIM(
         exit(1);
     }
     
-    int i, j, s; // iteration variable
+    int i, s; // iteration variable
     int temp_c;  // temporary variable during sorting
     double temp_d;
-    double rd = 0.0; // a random decimal value between 0.0 and 1.0
-
     double SSIM_temp;
-    *SSIM = (double *)malloc(n_can * sizeof(double)); // the SSIM between target day and candidate days
-    
     /** compute mean-SSIM between target and candidate images **/
     for (i = 0; i < n_can; i++)
     {
-        *(*SSIM + i) = 0.0;
+        *(SSIM + i) = 0.0;
         for (s = 0-skip; s < 1+skip; s++)
         {
             if (
@@ -223,7 +243,7 @@ void similarity_SSIM(
                                                     p_gp->k,
                                                     p_gp->power);
             }
-            *(*SSIM + i) += SSIM_temp;
+            *(SSIM + i) += SSIM_temp;
         }
     }
 }

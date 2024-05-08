@@ -1,6 +1,8 @@
 #ifndef FUNC_COVAR
 #define FUNC_COVAR
 
+extern FILE *p_SSIM;
+
 void kNN_MOF_cov(
     struct df_rr_h *p_rrh,
     struct df_rr_d *p_rrd,
@@ -19,7 +21,7 @@ void similarity_SSIM(
     int *pool_cans,
     int n_can,
     int skip,
-    double **SSIM
+    double *SSIM
 );
 
 

@@ -8,6 +8,7 @@
 #include "Func_Initialize.h"
 #include "Func_SSIM.h"
 #include "Func_Disaggregate.h"
+#include "Func_Covariate.h"
 
 /****** exit description *****
  * void exit(int status);
@@ -41,8 +42,8 @@ int main(int argc, char * argv[]) {
     time_t tm;  //datatype from <time.h>
     time(&tm);
 
-    struct Para_global Para_df;     // define the global-parameter structure
-    struct Para_global *p_gp;      // give a pointer to global_parameter structure
+    struct Para_global Para_df; // define the global-parameter structure
+    struct Para_global *p_gp;   // give a pointer to global_parameter structure
     p_gp = &Para_df;
     
     /******* import the global parameters ***********
@@ -51,8 +52,9 @@ int main(int argc, char * argv[]) {
     argv[1]: pointing to the second string (parameter): file path and name of global parameter file.
     */
     import_global(*(++argv), p_gp);
-    
-    if ((p_log=fopen(p_gp->FP_LOG, "a+")) == NULL) {
+    char VARname[20]; VAR_NAME(p_gp->VAR, VARname);
+    if ((p_log = fopen(p_gp->FP_LOG, "a+")) == NULL)
+    {
         printf("cannot create / open log file\n");
         exit(1);
     }
@@ -66,14 +68,23 @@ int main(int argc, char * argv[]) {
     fprintf(p_log, "FP_DAILY: %s\nFP_HOULY: %s\nFP_OUT:   %s\nFP_LOG:   %s\n",
         p_gp->FP_DAILY, p_gp->FP_HOURLY, p_gp->FP_OUT, p_gp->FP_LOG);
 
+    if (p_gp->VAR == 5)
+    {
+        printf(
+            "FP_COV_DLY: %s\nFP_COV_HLY: %s\n",
+            p_gp->FP_COV_DLY, p_gp->FP_COV_HLY);
+        fprintf(p_log, "FP_COV_DLY: %s\nFP_COV_HLY: %s\n",
+                p_gp->FP_COV_DLY, p_gp->FP_COV_HLY);
+    }
+
     printf(
-        "------ Disaggregation parameters: -----\nMONTH: %s\nN_STATION: %d\nCONTINUITY: %d\nSEASON: %s\n",
-        p_gp->MONTH, p_gp->N_STATION, p_gp->CONTINUITY, p_gp->SEASON
+        "------ Disaggregation parameters: -----\nVAR: %s\nMONTH: %s\nN_STATION: %d\nCONTINUITY: %d\nSEASON: %s\n",
+        VARname, p_gp->MONTH, p_gp->N_STATION, p_gp->CONTINUITY, p_gp->SEASON
     );
     fprintf(
         p_log,
-        "------ Disaggregation parameters: -----\nMONTH: %s\nN_STATION: %d\nCONTINUITY: %d\nSEASON: %s\n",
-        p_gp->MONTH, p_gp->N_STATION, p_gp->CONTINUITY, p_gp->SEASON
+        "------ Disaggregation parameters: -----\nVAR: %s\nMONTH: %s\nN_STATION: %d\nCONTINUITY: %d\nSEASON: %s\n",
+        VARname, p_gp->MONTH, p_gp->N_STATION, p_gp->CONTINUITY, p_gp->SEASON
     );
     if (strncmp(p_gp->SEASON, "TRUE", 4) == 0)
     {
@@ -131,7 +142,7 @@ int main(int argc, char * argv[]) {
     initialize_dfrr_d(p_gp, df_rr_daily, df_cps, nrow_rr_d, nrow_cp);
     
     time(&tm);
-    printf("------ Import daily rr data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import daily rr data (Done): %s", ctime(&tm));
+    printf("------ Import daily data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import daily data (Done): %s", ctime(&tm));
     
     printf("* the total rows: %d\n", nrow_rr_d); fprintf(p_log, "* the total rows: %d\n", nrow_rr_d);
     
@@ -154,11 +165,11 @@ int main(int argc, char * argv[]) {
     
     int ndays_h;
     static struct df_rr_h df_rr_hourly[MAXrow];
-    ndays_h = import_dfrr_h(p_gp, Para_df.FP_HOURLY, Para_df.N_STATION, df_rr_hourly);
+    ndays_h = import_dfrr_h(p_gp->VAR, Para_df.FP_HOURLY, Para_df.N_STATION, df_rr_hourly);
     
     initialize_dfrr_h(p_gp, df_rr_hourly, df_cps, ndays_h, nrow_cp);
     time(&tm);
-    printf("------ Import hourly rr data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import hourly rr data (Done): %s", ctime(&tm));
+    printf("------ Import hourly data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import hourly data (Done): %s", ctime(&tm));
     
     printf("* total hourly obs days: %d\n", ndays_h); fprintf(p_log, "* total hourly obs days: %d\n", ndays_h);
     
@@ -177,21 +188,57 @@ int main(int argc, char * argv[]) {
     view_class_rrh(df_rr_hourly, ndays_h);
     /****** maxima of rainfall value (L value in SSIM algorithm) *******/
     // initialize_L(df_rr_hourly, df_rr_daily, p_gp, nrow_rr_d, ndays_h);
-    /****** Disaggregation: kNN_MOF_cp *******/
+
+    static struct df_rr_d df_rr_daily_cov[MAXrow];
+    static struct df_rr_h df_rr_hourly_cov[MAXrow];
+    if (p_gp->VAR == 5)
+    {
+        /****** import covariate data *******/
+        int VAR_cov = 0;
+        int nrow_rr_d_cov;
+        nrow_rr_d_cov = import_dfrr_d(Para_df.FP_COV_DLY, Para_df.N_STATION, df_rr_daily_cov);
+
+        int ndays_h_cov;
+        ndays_h_cov = import_dfrr_h(VAR_cov, Para_df.FP_COV_HLY, Para_df.N_STATION, df_rr_hourly_cov);
+        if (!(nrow_rr_d == nrow_rr_d_cov && ndays_h == ndays_h_cov))
+        {
+            printf("Conflict in dimension of covariate data!\n");
+            exit(1);
+        }
+        time(&tm);
+        printf("------ Import covariate data (Done): %s", ctime(&tm)); 
+        fprintf(p_log, "------ Import covariate data (Done): %s", ctime(&tm));
     
-    if ((p_SSIM=fopen("D:/kNN_MOF_m/SSIM.csv", "w")) == NULL) {
-        printf("cannot create / open SSIM file\n");
+    }
+
+    /****** Disaggregation: kNN_MOF_cp *******/
+
+    if ((p_SSIM = fopen("D:/kNN_MOF_m/SSIM.csv", "w")) == NULL)
+    {
+        printf("Cannot create / open SSIM file\n");
         exit(1);
     }
     fprintf(p_SSIM, "target,ID,index_Frag,SSIM,candidate\n");
     printf("------ Disaggregating: ... \n");
-    kNN_MOF_SSIM(
-        df_rr_hourly,
-        df_rr_daily,
-        p_gp,  // the pointer pointing to Para_df structure;
-        nrow_rr_d,
-        ndays_h
-    );
+    if (p_gp->VAR == 5)
+    {
+        kNN_MOF_cov(
+            df_rr_hourly,
+            df_rr_daily,
+            df_rr_hourly_cov,
+            df_rr_daily_cov,
+            p_gp,
+            nrow_rr_d,
+            ndays_h);
+    } else {
+        kNN_MOF_SSIM(
+            df_rr_hourly,
+            df_rr_daily,
+            p_gp, // the pointer pointing to Para_df structure;
+            nrow_rr_d,
+            ndays_h);
+    }
+    
     fclose(p_SSIM);
     time(&tm);
     printf("------ Disaggregation daily2hourly (Done): %s", ctime(&tm));
