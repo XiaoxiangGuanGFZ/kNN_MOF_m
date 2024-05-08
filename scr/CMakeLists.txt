@@ -16,6 +16,8 @@ set(SOURCE_FILES
     Func_Fragments.c
     Func_Initialize.c
     Func_SSIM.c
+    Func_kNN.c
+    Func_Covariate.c
     Func_Disaggregate.c
 )
 
