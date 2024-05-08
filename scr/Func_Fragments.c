@@ -53,6 +53,11 @@ int SUN_dark(
     double *target
 )
 {
+    /*******************
+     * return:
+     * - 1: totally dark, for this time steo, no sunshine, or no solar duration, values <= 0.0
+     * - 0: at least partially bright, with at least one value greater than 0
+     * ********************/
     int dark = 1;
     for (size_t i = 0; i < N_STATION; i++)
     {

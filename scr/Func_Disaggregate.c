@@ -55,18 +55,27 @@ void kNN_MOF_SSIM(
      * *****************/
     int i, j, h, k, s;
     int class_t, class_c;
+
+    /*********
+     * order: 
+     * - 1: sort the similarity metric in decreasing order: SSIM
+     * - 0: sort the similarity metric in increasing order: Distance
+     * ******/
     int order = 1;
     struct df_rr_h df_rr_h_out; // this is a struct variable, not a struct array;
-    // struct df_rr_h df_rr_h_candidates[100];
-    // p_gp->CONTINUITY: 1, skip = 0;
-    // p_gp->CONTINUITY: 3, skip = 1;
-    // p_gp->CONTINUITY: 5, skip = 2;
+
+    /************
+     * CONTINUITY and skip
+     * - p_gp->CONTINUITY: 1, skip = 0;
+     * - p_gp->CONTINUITY: 3, skip = 1;
+     * - p_gp->CONTINUITY: 5, skip = 2;
+     * *************/
     int skip = 0;
     skip = (int)((p_gp->CONTINUITY - 1) / 2);
-    int pool_cans[MAXrow];  // the index of the candidates (a pool); the size is sufficient 
-    int n_can; //the number of candidates after all conditioning (cp and seasonality)
-    int fragment; // the index of df_rr_h structure with the final chosed fragments
-    
+    int pool_cans[MAXrow]; // the index of the candidates (a pool); the size is sufficient
+    int n_can;             // the number of candidates after all conditioning (cp and seasonality)
+    int fragment;          // the index of df_rr_h structure with the final chosed fragments
+
     FILE *p_FP_OUT;
     if ((p_FP_OUT=fopen(p_gp->FP_OUT, "w")) == NULL) {
         printf("Program terminated: cannot create or open output file\n");
