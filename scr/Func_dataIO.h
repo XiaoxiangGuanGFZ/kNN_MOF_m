@@ -14,16 +14,11 @@ int import_dfrr_d(
 ) ;
 
 int import_dfrr_h(
-    struct Para_global *p_gp,
+    int VAR,
     char FP_hourly[], 
     int N_STATION,
     struct df_rr_h *p_rr_h
 ) ;
-
-// int import_df_coor(
-//     char fname[],
-//     struct df_coor *p_df_coor
-// );
 
 
 int import_df_cp(
@@ -36,6 +31,11 @@ void Write_df_rr_h(
     struct Para_global *p_gp,
     FILE *p_FP_OUT,
     int run
+);
+
+void VAR_NAME(
+    int VAR,
+    char VARname[]
 );
 
 #endif
