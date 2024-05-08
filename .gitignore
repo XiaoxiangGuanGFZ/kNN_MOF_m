@@ -64,6 +64,8 @@ CTestTestfile.cmake
 _deps
 
 output/
+data_cov/
 doc/
 data/
 Rmd/
+
