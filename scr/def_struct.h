@@ -83,6 +83,15 @@ struct Para_global
         char FP_HOURLY[200];    // file path of hourly precipitation data (as fragments)
         char FP_OUT[200];       // file path of output(hourly) precipitation from disaggregation
         char FP_LOG[200];       // file path of log file
+
+        /*****
+         * the covariate (both daily and hourly) data should share the 
+         * same dimension (time coverage and space or sites domain) with 
+         * the variable data to be disaggregated
+         * ****/
+        char FP_COV_DLY[200];   // file path and name of daily covariate data
+        char FP_COV_HLY[200];   // file path and name of hourly covariate observation data
+    
         int N_STATION;          // number of stations (rain sites)
         char T_CP[10];          // toggle (flag), whether the CP is considered in the algorithm
 
