@@ -33,6 +33,7 @@
 #include <ctype.h>
 #include "def_struct.h"
 #include "Func_Fragments.h"
+#include "Func_kNN.h"
 #include "Func_SSIM.h"
 #include "Func_Disaggregate.h"
 #include "Func_dataIO.h"
@@ -54,7 +55,7 @@ void kNN_MOF_SSIM(
      * *****************/
     int i, j, h, k, s;
     int class_t, class_c;
-    
+    int order = 1;
     struct df_rr_h df_rr_h_out; // this is a struct variable, not a struct array;
     // struct df_rr_h df_rr_h_candidates[100];
     // p_gp->CONTINUITY: 1, skip = 0;
@@ -139,11 +140,11 @@ void kNN_MOF_SSIM(
         index_fragment = (int *)malloc(sizeof(int) * p_gp->RUN);
         if (i >= skip && i < nrow_rr_d - skip)
         {
-            kNN_SSIM_sampling(p_rrd, p_rrh, p_gp, i, pool_cans, index, skip, index_fragment);
+            kNN_SSIM_sampling(p_rrd, p_rrh, p_gp, i, pool_cans, order, index, skip, p_gp->RUN, index_fragment);
         }
         else
         {
-            kNN_SSIM_sampling(p_rrd, p_rrh, p_gp, i, pool_cans, index, 0, index_fragment);
+            kNN_SSIM_sampling(p_rrd, p_rrh, p_gp, i, pool_cans, order, index, 0, p_gp->RUN, index_fragment);
         }
         /*assign the sampled fragments to target day (disaggregation)*/
         for (size_t t = 0; t < p_gp->RUN; t++)
@@ -166,8 +167,10 @@ void kNN_SSIM_sampling(
     struct Para_global *p_gp,
     int index_target,
     int pool_cans[],
+    int order,
     int n_can,
     int skip,
+    int run,
     int *index_fragment
 ){
     /**************
@@ -213,7 +216,7 @@ void kNN_SSIM_sampling(
     double *SSIM;  // the distance between target day and candidate days
     double SSIM_temp;
     SSIM = (double *)malloc(n_can * sizeof(double));
-    int size_pool; // the k in kNN
+    
     // int index_out; // the output of this function: the sampled fragment from candidates pool
     /** compute mean-SSIM between target and candidate images **/
     for (i = 0; i < n_can; i++)
@@ -243,96 +246,22 @@ void kNN_SSIM_sampling(
             // printf("SSIM:%f\n",SSIM);
         }
     }
-    // sort the SSIM in the decreasing order
-    for (i = 0; i < n_can - 1; i++)
-    {
-        for (j = i + 1; j < n_can; j++)
-        {
-            if (SSIM[i] < SSIM[j])
-            {
-                temp_c = pool_cans[i];
-                pool_cans[i] = pool_cans[j];
-                pool_cans[j] = temp_c;
-                temp_d = SSIM[i];
-                SSIM[i] = SSIM[j];
-                SSIM[j] = temp_d;
-            }
-        }
-    }
 
-    /******
-     * the size of candidate pool in kNN algorithm
-     *      the range of size_pool:
-     *      [2, n_can]
-     ****/
+    // sort the SSIM in the decreasing order
+    kNN_sampling(SSIM, pool_cans, order, n_can, run, index_fragment);
+
+    /**********
+     * print the largest k SSIM values and corresponding candidate dates
+     * ********/
+    int size_pool; // the k in kNN
     size_pool = (int)sqrt(n_can) + 1;
-    /******
-     * compute the weights for kNN sampling
-     *      the weight is defined based on SSIM; higher SSIM, heavier weight
-     * dynamic memory allocation for the double array - weights
-     * */
-    double *weights;
-    weights = malloc(size_pool * sizeof(double)); // a double array with the size of size_pool
-    double w_sum = 0.0;
     for (i = 0; i < size_pool; i++)
     {
-        *(weights + i) = SSIM[i] + 1;
-        w_sum += SSIM[i] + 1;
-        fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd+index_target)->date.y, (p_rrd+index_target)->date.m, (p_rrd+index_target)->date.d);
+        fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd + index_target)->date.y, (p_rrd + index_target)->date.m, (p_rrd + index_target)->date.d);
         fprintf(p_SSIM, "%d,%d,%f,", i, pool_cans[i], SSIM[i]);
         fprintf(p_SSIM, "%d-%02d-%02d\n", (p_rrh + pool_cans[i])->date.y, (p_rrh + pool_cans[i])->date.m, (p_rrh + pool_cans[i])->date.d);
     }
-    for (i = 0; i < size_pool; i++)
-    {
-        *(weights + i) /= w_sum; // reassignment
-    }
-    /* compute the empirical cdf for weights (vector) */
-    double *weights_cdf;
-    weights_cdf = malloc(size_pool * sizeof(double));
-    *(weights_cdf + 0) = weights[0]; // initialization
-    for (i = 1; i < size_pool; i++)
-    {
-        *(weights_cdf + i) = *(weights_cdf + i - 1) + weights[i];
-    }
-    /* generate a random number, then select the fragments index*/
-    for (size_t t = 0; t < p_gp->RUN; t++)
-    {
-        index_fragment[t] = weight_cdf_sample(size_pool, pool_cans, weights_cdf);
-    }
 
-    free(weights);
-    free(weights_cdf);
     free(SSIM);
-}
-
-
-double get_random() { return ((double)rand() / (double)RAND_MAX); }
-int weight_cdf_sample(
-    int size_pool,
-    int pool_cans[],
-    double *weights_cdf    
-) {
-    int i;
-    double rd = 0.0;  // a random decimal value between 0.0 and 1.0
-    int index_out; // the output of this function: the sampled fragment from candidates pool
-
-    // srand(time(NULL)); // randomize seed
-    rd = get_random(); // call the function to get a different value of n every time
-    if (rd <= weights_cdf[0])
-    {
-        index_out = pool_cans[0];
-    }
-    else
-    {
-        for (i = 1; i < size_pool; i++)
-        {
-            if (rd <= weights_cdf[i] && rd > weights_cdf[i - 1])
-            {
-                index_out = pool_cans[i];
-                break;
-            }
-        }
-    }
-    return index_out;
 }
 
