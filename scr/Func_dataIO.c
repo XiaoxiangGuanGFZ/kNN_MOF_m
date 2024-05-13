@@ -403,7 +403,6 @@ int import_dfrr_h(
          * - wind
          * - rhu
          * - pressure
-         *
          * ****/
         for (p_df_rr_h = p_rr_h; p_df_rr_h < p_rr_h + ndays; p_df_rr_h++)
         {
@@ -453,7 +452,6 @@ void Write_df_rr_h(
         }
         fprintf(p_FP_OUT, "\n"); // print "\n" (newline) after one row
     }
-    // printf("%d-%d-%d: Done\n", p_out->date.y, p_out->date.m, p_out->date.d); // print to screen (command line)
 }
 
 void VAR_NAME(

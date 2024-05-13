@@ -235,9 +235,16 @@ void similarity_SSIM(
             }
             else
             {
+                // SSIM_temp = w_image[s + skip] * meanSSIM(
+                //                                     (p_rrd + index_target + s)->p_rr,
+                //                                     (p_rrh + pool_cans[i] + s)->rr_d,
+                //                                     p_gp->NODATA,
+                //                                     p_gp->N_STATION,
+                //                                     p_gp->k,
+                //                                     p_gp->power);
                 SSIM_temp = w_image[s + skip] * meanSSIM(
-                                                    (p_rrd + index_target + s)->p_rr,
-                                                    (p_rrh + pool_cans[i] + s)->rr_d,
+                                                    (p_rrd + index_target + s)->p_rr_nom,
+                                                    (p_rrh + pool_cans[i] + s)->rr_d_nom,
                                                     p_gp->NODATA,
                                                     p_gp->N_STATION,
                                                     p_gp->k,

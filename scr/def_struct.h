@@ -22,19 +22,12 @@ struct df_rr_d
      */
     struct Date date;    
     double *p_rr;
+    double *p_rr_nom;
     int cp;
     int SM;
     // int season;
     int class;
 };
-
-// struct df_coor
-// {
-//     int id;
-//     double lon;
-//     double lat;
-//     int *neighbors;
-// } ;
 
 struct df_rr_h
 {
@@ -49,6 +42,7 @@ struct df_rr_h
     struct Date date;    
     double (*rr_h)[24];
     double *rr_d;
+    double *rr_d_nom;
     int cp;
     int SM;
     // int season;

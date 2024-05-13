@@ -3,7 +3,13 @@
 
 extern FILE *p_log;  // file pointer pointing to log file
 
-
+/*********
+ * funcs for time seires classification based possibly on:
+ * - cp
+ * - seasonality
+ * - 12 month
+ * - different combinations  
+ * *****/
 void initialize_dfrr_d(
     struct Para_global *p_gp,
     struct df_rr_d *p_rr_d,
@@ -31,14 +37,9 @@ int CP_classes(
     int nrow_cp
 );
 
-// void initialize_L(
-//     struct df_rr_h *p_rrh,
-//     struct df_rr_d *p_rrd,
-//     struct Para_global *p_gp,
-//     int nrow_rr_d,
-//     int ndays_h
-// );
-
+/********
+ * view (print to screen) the classes of the time series
+ * ****/
 void view_class_rrd(
     struct df_rr_d *p_rr_d,
     int nrow_rr_d
@@ -49,17 +50,19 @@ void view_class_rrh(
     int nrow_rr_d
 );
 
-// void initialize_df_coor(
-//     struct Para_global *p_gp,
-//     struct df_coor **p_coor,
-//     int nrow_coor
-// );
+/********
+ * funcs for normalization of dly data
+ * ******/
+void Normalize_d(
+    struct Para_global *p_gp,
+    struct df_rr_d *p_rr_d,
+    int nrow_rr_d
+);
 
-// double COOR_distance(
-//     double lon1,
-//     double lat1,
-//     double lon2,
-//     double lat2
-// );
+void Normalize_h(
+    struct Para_global *p_gp,
+    struct df_rr_h *p_rr_h,
+    int nrow_rr_d
+);
 
 #endif

@@ -343,3 +343,110 @@ void view_class_rrh(
     printf("\n"); fprintf(p_log, "\n");
 }
 
+
+
+void Normalize_d(
+    struct Para_global *p_gp,
+    struct df_rr_d *p_rr_d,
+    int nrow_rr_d
+)
+{
+    int N;
+    double max = 0.0; 
+    double min = 0.0;
+    double range;
+    N = p_gp->N_STATION;
+    for (size_t i = 0; i < nrow_rr_d; i++)
+    {
+        for (size_t j = 0; j < N; j++)
+        {
+            if ((p_rr_d + i)->p_rr[j] != p_gp->NODATA)
+            {
+                if ((p_rr_d + i)->p_rr[j] > max)
+                {
+                    max = (p_rr_d + i)->p_rr[j];
+                }
+                else if ((p_rr_d + i)->p_rr[j] < min)
+                {
+                    min = (p_rr_d + i)->p_rr[j];
+                }
+            }
+        }
+    }
+    range = max - min;
+    if (range <= 0.0)
+    {
+        printf("Error: in normalization, max == min! \n");
+        exit(2);
+    }
+    
+    for (size_t i = 0; i < nrow_rr_d; i++)
+    {
+        (p_rr_d + i)->p_rr_nom = (double *)malloc(sizeof(double) * N);
+        for (size_t j = 0; j < N; j++)
+        {
+            if ((p_rr_d + i)->p_rr[j] != p_gp->NODATA)
+            {
+                (p_rr_d + i)->p_rr_nom[j] = ((p_rr_d + i)->p_rr[j] - min) / range;
+            }
+            else
+            {
+                (p_rr_d + i)->p_rr_nom[j] = p_gp->NODATA;
+            }
+        }
+    }
+}
+
+
+
+void Normalize_h(
+    struct Para_global *p_gp,
+    struct df_rr_h *p_rr_h,
+    int nrow_rr_d
+)
+{
+    int N;
+    double max = 0.0; 
+    double min = 0.0;
+    double range;
+    N = p_gp->N_STATION;
+    for (size_t i = 0; i < nrow_rr_d; i++)
+    {
+        for (size_t j = 0; j < N; j++)
+        {
+            if ((p_rr_h + i)->rr_d[j] != p_gp->NODATA)
+            {
+                if ((p_rr_h + i)->rr_d[j] > max)
+                {
+                    max = (p_rr_h + i)->rr_d[j];
+                }
+                else if ((p_rr_h + i)->rr_d[j] < min)
+                {
+                    min = (p_rr_h + i)->rr_d[j];
+                }
+            }
+        }
+    }
+    range = max - min;
+    if (range <= 0.0)
+    {
+        printf("Error: in normalization, max == min! \n");
+        exit(2);
+    }
+    
+    for (size_t i = 0; i < nrow_rr_d; i++)
+    {
+        (p_rr_h + i)->rr_d_nom = (double *)malloc(sizeof(double) * N);
+        for (size_t j = 0; j < N; j++)
+        {
+            if ((p_rr_h + i)->rr_d[j] != p_gp->NODATA)
+            {
+                (p_rr_h + i)->rr_d_nom[j] = ((p_rr_h + i)->rr_d[j] - min) / range;
+            }
+            else
+            {
+                (p_rr_h + i)->rr_d_nom[j] = p_gp->NODATA;
+            }
+        }
+    }
+}

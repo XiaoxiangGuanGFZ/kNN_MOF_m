@@ -92,7 +92,8 @@ void Fragment_assign(
     {
         /************
          * VAR
-         * - sunshine duration
+         * - VAR：4 sunshine duration
+         * - VAR：1 wind speed
          * ********/
         for (j = 0; j < p_gp->N_STATION; j++)
         {
@@ -135,10 +136,10 @@ void Fragment_assign(
                 p_out->rr_h[j][h] = p_out->rr_d[j] + (p_rrh + fragment)->rr_h[j][h] - (p_rrh + fragment)->rr_d[j];
             }
         }
-    }
+    } 
     else
     {
-        // for other weather variables: rhu, pressure
+        // for other weather variables: rhu (VAR 3), pressure (VAR 2), solar (VAR 5)
         for (j = 0; j < p_gp->N_STATION; j++)
         {
             for (h = 0; h < 24; h++)
@@ -153,6 +154,7 @@ void Fragment_assign(
      * *********/
     if (p_gp->VAR == 3)
     {
+        // VAR 3: relative humidity
         for (j = 0; j < p_gp->N_STATION; j++)
         {
             for (h = 0; h < 24; h++)
@@ -166,6 +168,7 @@ void Fragment_assign(
     }
     else if (p_gp->VAR == 4)
     {
+        // VAR: 4 sunshine duration
         for (j = 0; j < p_gp->N_STATION; j++)
         {
             for (h = 0; h < 24; h++)

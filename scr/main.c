@@ -140,7 +140,18 @@ int main(int argc, char * argv[]) {
     int nrow_rr_d;
     nrow_rr_d = import_dfrr_d(Para_df.FP_DAILY, Para_df.N_STATION, df_rr_daily);
     initialize_dfrr_d(p_gp, df_rr_daily, df_cps, nrow_rr_d, nrow_cp);
-    
+    Normalize_d(
+        p_gp,
+        df_rr_daily,
+        nrow_rr_d);
+    // for (size_t i = 0; i < p_gp->N_STATION; i++)
+    // {
+    //     printf(
+    //         "%f, ", (df_rr_daily + 180)->p_rr_nom[i]
+    //     );
+    // }
+    // exit(3);
+
     time(&tm);
     printf("------ Import daily data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import daily data (Done): %s", ctime(&tm));
     
@@ -166,7 +177,11 @@ int main(int argc, char * argv[]) {
     int ndays_h;
     static struct df_rr_h df_rr_hourly[MAXrow];
     ndays_h = import_dfrr_h(p_gp->VAR, Para_df.FP_HOURLY, Para_df.N_STATION, df_rr_hourly);
-    
+    Normalize_h(
+        p_gp,
+        df_rr_hourly,
+        ndays_h);
+
     initialize_dfrr_h(p_gp, df_rr_hourly, df_cps, ndays_h, nrow_cp);
     time(&tm);
     printf("------ Import hourly data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import hourly data (Done): %s", ctime(&tm));
@@ -197,9 +212,12 @@ int main(int argc, char * argv[]) {
         int VAR_cov = 0;
         int nrow_rr_d_cov;
         nrow_rr_d_cov = import_dfrr_d(Para_df.FP_COV_DLY, Para_df.N_STATION, df_rr_daily_cov);
+        Normalize_d(p_gp, df_rr_daily_cov, nrow_rr_d_cov);
 
         int ndays_h_cov;
         ndays_h_cov = import_dfrr_h(VAR_cov, Para_df.FP_COV_HLY, Para_df.N_STATION, df_rr_hourly_cov);
+        Normalize_h(p_gp, df_rr_hourly_cov, ndays_h_cov);
+        
         if (!(nrow_rr_d == nrow_rr_d_cov && ndays_h == ndays_h_cov))
         {
             printf("Conflict in dimension of covariate data!\n");
