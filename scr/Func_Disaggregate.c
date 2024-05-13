@@ -115,7 +115,7 @@ void kNN_MOF_SSIM(
         for (size_t j = skip; j < ndays_h - skip; j++)
         {
             class_c = (p_rrh + j)->class; // the class of the candidate day
-            if (class_c == class_t)       // && Toggle_WD(p_gp->N_STATION, (p_rrh + pool_cans[j])->rr_d) == 1
+            if (class_c == class_t)       
             {
                 pool_cans[n_can] = j;
                 n_can += 1;
@@ -144,16 +144,17 @@ void kNN_MOF_SSIM(
             printf("No candidates for step: %d!\n", i);
             exit(1);
         }
+        n_can = index;
 
         int *index_fragment;
         index_fragment = (int *)malloc(sizeof(int) * p_gp->RUN);
         if (i >= skip && i < nrow_rr_d - skip)
         {
-            kNN_SSIM_sampling(p_rrd, p_rrh, p_gp, i, pool_cans, order, index, skip, p_gp->RUN, index_fragment);
+            kNN_SSIM_sampling(p_rrd, p_rrh, p_gp, i, pool_cans, order, n_can, skip, p_gp->RUN, index_fragment);
         }
         else
         {
-            kNN_SSIM_sampling(p_rrd, p_rrh, p_gp, i, pool_cans, order, index, 0, p_gp->RUN, index_fragment);
+            kNN_SSIM_sampling(p_rrd, p_rrh, p_gp, i, pool_cans, order, n_can, 0, p_gp->RUN, index_fragment);
         }
         /*assign the sampled fragments to target day (disaggregation)*/
         for (size_t t = 0; t < p_gp->RUN; t++)
@@ -215,18 +216,16 @@ void kNN_SSIM_sampling(
         printf("Currently CONTUNITY > 5 is not possible!\n");
         exit(1);
     }
-    // printf("skip: %d: w0:%f,w1:%f,w2:%f\n", skip, w_image[0], w_image[1],w_image[2]);
+    
     int i, j, s;  // iteration variable
     int temp_c;  // temporary variable during sorting 
     double temp_d;
     double rd = 0.0;  // a random decimal value between 0.0 and 1.0
 
-    // double distance[MAXrow]; 
     double *SSIM;  // the distance between target day and candidate days
     double SSIM_temp;
     SSIM = (double *)malloc(n_can * sizeof(double));
     
-    // int index_out; // the output of this function: the sampled fragment from candidates pool
     /** compute mean-SSIM between target and candidate images **/
     for (i = 0; i < n_can; i++)
     {
@@ -242,17 +241,22 @@ void kNN_SSIM_sampling(
             }
             else
             {
-
+                // SSIM_temp = w_image[s + skip] * meanSSIM(
+                //                                     (p_rrd + index_target + s)->p_rr,
+                //                                     (p_rrh + pool_cans[i] + s)->rr_d,
+                //                                     p_gp->NODATA,
+                //                                     p_gp->N_STATION,
+                //                                     p_gp->k,
+                //                                     p_gp->power);
                 SSIM_temp = w_image[s + skip] * meanSSIM(
-                                                    (p_rrd + index_target + s)->p_rr,
-                                                    (p_rrh + pool_cans[i] + s)->rr_d,
+                                                    (p_rrd + index_target + s)->p_rr_nom,
+                                                    (p_rrh + pool_cans[i] + s)->rr_d_nom,
                                                     p_gp->NODATA,
                                                     p_gp->N_STATION,
                                                     p_gp->k,
                                                     p_gp->power);
             }
             *(SSIM + i) += SSIM_temp;
-            // printf("SSIM:%f\n",SSIM);
         }
     }
 

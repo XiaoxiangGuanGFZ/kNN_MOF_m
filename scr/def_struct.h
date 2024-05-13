@@ -22,11 +22,10 @@ struct df_rr_d
      */
     struct Date date;    
     double *p_rr;
-    double *p_rr_nom;
+    double *p_rr_nom;  // data series at daily scale after normalization
     int cp;
-    int SM;
-    // int season;
-    int class;
+    int SM;         // summer or winter; 1 or 0
+    int class;      // class of the day; categorized by cp, seaspn, month or ... 
 };
 
 struct df_rr_h
@@ -41,11 +40,10 @@ struct df_rr_h
      */
     struct Date date;    
     double (*rr_h)[24];
-    double *rr_d;
-    double *rr_d_nom;
+    double *rr_d;     // daily data aggregated from hourly; (*rr_h)[24]
+    double *rr_d_nom; // daily data after normalization
     int cp;
     int SM;
-    // int season;
     int class;
 };
 
@@ -70,8 +68,9 @@ struct Para_global
          * 2    air pressure
          * 3    relative humidity
          * 4    sunshine duration
+         * 5    solar radiation
          * ********/
-        // char FP_COOR[200];      // file path of rain site coordinates
+        
         char FP_DAILY[200];     // file path of daily precipitation data (to be disaggregated)
         char FP_CP[200];        // file path of circulation pattern (CP) classification data series
         char FP_HOURLY[200];    // file path of hourly precipitation data (as fragments)
@@ -95,7 +94,6 @@ struct Para_global
         int SUMMER_TO;          // the end month of summer
 
         int CONTINUITY;         // continuity day
-        // int WD;                 // the flexibility level of wet-dry status in candidates filtering
         int CLASS_N;            // total categories the series is classified into
 
         double k[3];            // 3 parameters in SSIM

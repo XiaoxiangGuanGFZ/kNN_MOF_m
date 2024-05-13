@@ -140,17 +140,7 @@ int main(int argc, char * argv[]) {
     int nrow_rr_d;
     nrow_rr_d = import_dfrr_d(Para_df.FP_DAILY, Para_df.N_STATION, df_rr_daily);
     initialize_dfrr_d(p_gp, df_rr_daily, df_cps, nrow_rr_d, nrow_cp);
-    Normalize_d(
-        p_gp,
-        df_rr_daily,
-        nrow_rr_d);
-    // for (size_t i = 0; i < p_gp->N_STATION; i++)
-    // {
-    //     printf(
-    //         "%f, ", (df_rr_daily + 180)->p_rr_nom[i]
-    //     );
-    // }
-    // exit(3);
+    Normalize_d(p_gp, df_rr_daily, nrow_rr_d);
 
     time(&tm);
     printf("------ Import daily data (Done): %s", ctime(&tm)); fprintf(p_log, "------ Import daily data (Done): %s", ctime(&tm));
@@ -177,10 +167,7 @@ int main(int argc, char * argv[]) {
     int ndays_h;
     static struct df_rr_h df_rr_hourly[MAXrow];
     ndays_h = import_dfrr_h(p_gp->VAR, Para_df.FP_HOURLY, Para_df.N_STATION, df_rr_hourly);
-    Normalize_h(
-        p_gp,
-        df_rr_hourly,
-        ndays_h);
+    Normalize_h(p_gp, df_rr_hourly, ndays_h);
 
     initialize_dfrr_h(p_gp, df_rr_hourly, df_cps, ndays_h, nrow_cp);
     time(&tm);
@@ -239,7 +226,8 @@ int main(int argc, char * argv[]) {
     fprintf(p_SSIM, "target,ID,index_Frag,SSIM,candidate\n");
     printf("------ Disaggregating: ... \n");
     if (p_gp->VAR == 5)
-    {
+    {   // VAR:5  solar radiation
+        // covariate: air temperature
         kNN_MOF_cov(
             df_rr_hourly,
             df_rr_daily,
@@ -252,7 +240,7 @@ int main(int argc, char * argv[]) {
         kNN_MOF_SSIM(
             df_rr_hourly,
             df_rr_daily,
-            p_gp, // the pointer pointing to Para_df structure;
+            p_gp,
             nrow_rr_d,
             ndays_h);
     }
