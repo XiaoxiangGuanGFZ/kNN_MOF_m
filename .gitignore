@@ -68,4 +68,5 @@ data_cov/
 doc/
 data/
 Rmd/
+SSIM.csv
 
