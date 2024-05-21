@@ -32,8 +32,7 @@ FILE *p_log;  // file pointer pointing to log file
 
 /*****************
  * main function
- */
-
+ **************/
 int main(int argc, char * argv[]) {
     /*
     int argc: the number of parameters of main() function;
@@ -193,19 +192,19 @@ int main(int argc, char * argv[]) {
     /****** maxima of rainfall value (L value in SSIM algorithm) *******/
     // initialize_L(df_hly, df_dly, p_gp, nrow_rr_d, ndays_h);
 
-    // static struct df_rr_d df_rr_daily_cov[MAXrow];
-    // static struct df_rr_h df_rr_hourly_cov[MAXrow];
+    // static struct df_rr_d df_dly_cov[MAXrow];
+    // static struct df_rr_h df_hly_cov[MAXrow];
     // if (p_gp->VAR == 5)
     // {
     //     /****** import covariate data *******/
     //     int VAR_cov = 0;
     //     int nrow_rr_d_cov;
-    //     nrow_rr_d_cov = import_dfrr_d(Para_df.FP_COV_DLY, Para_df.N_STATION, df_rr_daily_cov);
-    //     Normalize_d(p_gp, df_rr_daily_cov, nrow_rr_d_cov);
+    //     nrow_rr_d_cov = import_dfrr_d(Para_df.FP_COV_DLY, Para_df.N_STATION, df_dly_cov);
+    //     Normalize_d(p_gp, df_dly_cov, nrow_rr_d_cov);
 
     //     int ndays_h_cov;
-    //     ndays_h_cov = import_dfrr_h(VAR_cov, Para_df.FP_COV_HLY, Para_df.N_STATION, df_rr_hourly_cov);
-    //     Normalize_h(p_gp, df_rr_hourly_cov, ndays_h_cov);
+    //     ndays_h_cov = import_dfrr_h(VAR_cov, Para_df.FP_COV_HLY, Para_df.N_STATION, df_hly_cov);
+    //     Normalize_h(p_gp, df_hly_cov, ndays_h_cov);
         
     //     if (!(nrow_rr_d == nrow_rr_d_cov && ndays_h == ndays_h_cov))
     //     {
@@ -232,11 +231,6 @@ int main(int argc, char * argv[]) {
         double *Solar_MAX;
         Solar_MAX = (double *)malloc(sizeof(double) * p_gp->N_STATION);
         Solar_MAX_derive(&Solar_MAX, df_hly, p_gp, ndays_h);
-        // for (size_t i = 0; i < p_gp->N_STATION; i++)
-        // {
-        //     printf("%f\n", Solar_MAX[i]);
-        // }
-        // exit(0);
         kNN_MOF_solar(
             df_hly,
             df_dly,

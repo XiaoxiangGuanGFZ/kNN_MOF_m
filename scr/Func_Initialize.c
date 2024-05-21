@@ -113,7 +113,7 @@ void initialize_dfrr_h(
     int nrow_cp
 )
 {
-        if (strncmp(p_gp->MONTH, "TRUE", 4) == 0 && strncmp(p_gp->SEASON, "TRUE", 4) == 0) 
+    if (strncmp(p_gp->MONTH, "TRUE", 4) == 0 && strncmp(p_gp->SEASON, "TRUE", 4) == 0)
     {
         printf("The disaggregation can only be conditioned on either MONTH or SEASON!\n");
         exit(1);

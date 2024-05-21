@@ -129,7 +129,7 @@ void kNN_MOF_solar(
         } else {
             skip_temp = 0;
         }
-        similarity_SSIM(p_rrd, p_rrh, p_gp, i, pool_cans, n_can, skip_temp, SSIM);
+        similarity_SSIM_solar(p_rrd, p_rrh, p_gp, i, pool_cans, n_can, skip_temp, SSIM);
         
         /*******
          * sample the candidates, assign the fragments and then write the output
@@ -239,7 +239,7 @@ void Solar_MAX_filter(
 }
 
 
-void similarity_SSIM(
+void similarity_SSIM_solar(
     struct df_rr_d *p_rrd,
     struct df_rr_h *p_rrh,
     struct Para_global *p_gp,

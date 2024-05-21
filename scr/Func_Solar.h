@@ -12,7 +12,7 @@ void kNN_MOF_solar(
     int ndays_h
 );
 
-void similarity_SSIM(
+void similarity_SSIM_solar(
     struct df_rr_d *p_rrd,
     struct df_rr_h *p_rrh,
     struct Para_global *p_gp,
