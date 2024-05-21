@@ -17,8 +17,8 @@ set(SOURCE_FILES
     Func_Initialize.c
     Func_SSIM.c
     Func_kNN.c
-    Func_Covariate.c
     Func_Disaggregate.c
+    Func_Solar.c
 )
 
 project(kNN_MOF_m)  # Set your project name here

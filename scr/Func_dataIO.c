@@ -113,14 +113,14 @@ void import_global(
                 /****
                  * covaruate variable
                  * ****/
-                else if (strncmp(token, "FP_COV_DLY", 10) == 0)
-                {
-                    strcpy(p_gp->FP_COV_DLY, token2);
-                }
-                else if (strncmp(token, "FP_COV_HLY", 10) == 0)
-                {
-                    strcpy(p_gp->FP_COV_HLY, token2);
-                }
+                // else if (strncmp(token, "FP_COV_DLY", 10) == 0)
+                // {
+                //     strcpy(p_gp->FP_COV_DLY, token2);
+                // }
+                // else if (strncmp(token, "FP_COV_HLY", 10) == 0)
+                // {
+                //     strcpy(p_gp->FP_COV_HLY, token2);
+                // }
                 /******
                  * disaggregation parameter
                  * ****/
@@ -227,7 +227,6 @@ int import_dfrr_d(
      * Return:
      *  output the number of days (rows)
      * ****************/
-    // char FP_daily[]="D:/kNN_MOF_cp/data/rr_obs_daily.csv";  // key parameter
     FILE *fp_d;
     if ((fp_d = fopen(FP_daily, "r")) == NULL)
     {
