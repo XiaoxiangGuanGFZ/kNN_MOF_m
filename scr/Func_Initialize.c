@@ -44,6 +44,7 @@ void initialize_dfrr_d(
      * assign each day the cp value
      */
     int N_CP_CLASS;
+    int N_SM_CLASS;
     if (strncmp(p_gp->T_CP, "TRUE", 4) == 0)
     {
         N_CP_CLASS = CP_classes(p_cp, nrow_cp);
@@ -63,7 +64,7 @@ void initialize_dfrr_d(
 
     /*******
      * assign each day the season (summer or winter) value
-    */
+     */
     if (strncmp(p_gp->SEASON, "TRUE", 4) == 0) {
         for (size_t i = 0; i < nrow_rr_d; i++)
         {
@@ -74,6 +75,7 @@ void initialize_dfrr_d(
                 (p_rr_d + i)->SM = 0; // winter
             }
         }
+        N_SM_CLASS = 2;
     }
     else if (strncmp(p_gp->MONTH, "TRUE", 4) == 0)
     {
@@ -81,15 +83,30 @@ void initialize_dfrr_d(
         {
             (p_rr_d + i)->SM = (p_rr_d + i)->date.m - 1;
         }
+        N_SM_CLASS = 12;
     } else {
         for (size_t i = 0; i < nrow_rr_d; i++)
         {
             (p_rr_d + i)->SM = 0;
         }
+        N_SM_CLASS = 0;
+    }
+
+    if (N_SM_CLASS > 0 && N_CP_CLASS > 0)
+    {
+        p_gp->CLASS_N = N_SM_CLASS * N_CP_CLASS;
+    } else if (N_SM_CLASS > 0 && N_CP_CLASS == 0)
+    {
+        p_gp->CLASS_N = N_SM_CLASS;
+    } else if (N_SM_CLASS == 0 && N_CP_CLASS > 0)
+    {
+        p_gp->CLASS_N = N_CP_CLASS;
+    } else {
+        p_gp->CLASS_N = 0;
     }
 
     /******************
-     * time series is classified based on following combinations: 
+     * time series is classified based on following combinations:
      * - month alone
      * - season alone
      * - month and cp
@@ -97,11 +114,34 @@ void initialize_dfrr_d(
      * - cp alone
      * - nothing
      * ****/
-    for (size_t i = 0; i < nrow_rr_d; i++)
+    if (N_CP_CLASS > 0 && N_SM_CLASS > 0)
     {
-        (p_rr_d + i)->class = ((p_rr_d + i)->cp - 1) * N_CP_CLASS + (p_rr_d + i)->SM;
+        for (size_t i = 0; i < nrow_rr_d; i++)
+        {
+            (p_rr_d + i)->class = ((p_rr_d + i)->cp - 1) + N_CP_CLASS * (p_rr_d + i)->SM;
+        }
     }
-
+    else if (N_CP_CLASS > 0 && N_SM_CLASS == 0)
+    {
+        for (size_t i = 0; i < nrow_rr_d; i++)
+        {
+            (p_rr_d + i)->class = (p_rr_d + i)->cp - 1;
+        }
+    }
+    else if (N_CP_CLASS == 0 && N_SM_CLASS > 0)
+    {
+        for (size_t i = 0; i < nrow_rr_d; i++)
+        {
+            (p_rr_d + i)->class = (p_rr_d + i)->SM;
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < nrow_rr_d; i++)
+        {
+            (p_rr_d + i)->class = 0;
+        }
+    }
 }
 
 
@@ -122,7 +162,7 @@ void initialize_dfrr_h(
     /*******
      * assign each day the cp value
      */
-    int N_CP_CLASS;
+    int N_CP_CLASS, N_SM_CLASS;
     if (strncmp(p_gp->T_CP, "TRUE", 4) == 0)
     {
         N_CP_CLASS = CP_classes(p_cp, nrow_cp);
@@ -153,6 +193,7 @@ void initialize_dfrr_h(
                 (p_rr_h + i)->SM = 0; // winter
             }
         }
+        N_SM_CLASS = 2;
     }
     else if (strncmp(p_gp->MONTH, "TRUE", 4) == 0)
     {
@@ -160,11 +201,13 @@ void initialize_dfrr_h(
         {
             (p_rr_h + i)->SM = (p_rr_h + i)->date.m - 1;
         }
+        N_SM_CLASS = 12;
     } else {
         for (size_t i = 0; i < nrow_rr_d; i++)
         {
             (p_rr_h + i)->SM = 0;
         }
+        N_SM_CLASS = 0;
     }
 
     /******************
@@ -176,11 +219,35 @@ void initialize_dfrr_h(
      * - cp alone
      * - nothing
      * ****/
-    for (size_t i = 0; i < nrow_rr_d; i++)
-    {
-        (p_rr_h + i)->class = ((p_rr_h + i)->cp - 1) * N_CP_CLASS + (p_rr_h + i)->SM;
-    }
 
+    if (N_CP_CLASS > 0 && N_SM_CLASS > 0)
+    {
+        for (size_t i = 0; i < nrow_rr_d; i++)
+        {
+            (p_rr_h + i)->class = ((p_rr_h + i)->cp - 1) + N_CP_CLASS * (p_rr_h + i)->SM;
+        }
+    }
+    else if (N_CP_CLASS > 0 && N_SM_CLASS == 0)
+    {
+        for (size_t i = 0; i < nrow_rr_d; i++)
+        {
+            (p_rr_h + i)->class = (p_rr_h + i)->cp - 1;
+        }
+    }
+    else if (N_CP_CLASS == 0 && N_SM_CLASS > 0)
+    {
+        for (size_t i = 0; i < nrow_rr_d; i++)
+        {
+            (p_rr_h + i)->class = (p_rr_h + i)->SM;
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < nrow_rr_d; i++)
+        {
+            (p_rr_h + i)->class = 0;
+        }
+    }
 }
 
 
