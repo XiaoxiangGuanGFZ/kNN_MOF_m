@@ -93,24 +93,25 @@ void kNN_MOF_solar(
             }
         }
         
-        int index = 0;  // the number of candidates after class and 0-check 
-        if (p_gp->VAR == 4 || p_gp->VAR == 1)
-        {
-            /* check the 0 and non-zero for sunshine duration (VAR: 4) and wind speed (VAR: 1) */
-            for (j = 0; j < n_can; j++)
-            {
-                if (SUN_zero_fit(p_gp->N_STATION, (p_rrd + i)->p_rr, (p_rrh + pool_cans[j])->rr_d) == 1)
-                {
-                    pool_cans[index] = pool_cans[j];
-                    index += 1;
-                }
-            }
-        } else {
-            index = n_can;
-        }
-        n_can = index;
-        Solar_MAX_filter(p_rrh, p_rrd + i, p_gp, Solar_MAX, pool_cans, &n_can);
-        if (n_can == 0)
+        // int index = 0;  // the number of candidates after class and 0-check 
+        // if (p_gp->VAR == 4 || p_gp->VAR == 1)
+        // {
+        //     /* check the 0 and non-zero for sunshine duration (VAR: 4) and wind speed (VAR: 1) */
+        //     for (j = 0; j < n_can; j++)
+        //     {
+        //         if (SUN_zero_fit(p_gp->N_STATION, (p_rrd + i)->p_rr, (p_rrh + pool_cans[j])->rr_d) == 1)
+        //         {
+        //             pool_cans[index] = pool_cans[j];
+        //             index += 1;
+        //         }
+        //     }
+        // } else {
+        //     index = n_can;
+        // }
+        // n_can = index;
+        int n_can_out;
+        Solar_MAX_class_filter(p_rrh, p_rrd + i, p_gp, Solar_MAX, pool_cans, n_can, &n_can_out);
+        if (n_can_out == 0)
         {
             printf("No candidates for step: %d!\n", i);
             exit(1);
@@ -161,58 +162,98 @@ void kNN_MOF_solar(
     fclose(p_FP_OUT);
 }
 
-void Solar_MAX_derive(
+void Solar_MAX_class_derive(
     double **Solar_MAX,
     struct df_rr_h *p_rrh,
     struct Para_global *p_gp,
     int ndays_h
 )
 {
-    /*****************
-     * derive the hourly maximum solar radiation for each station
-     * ****************/
-    int N;
+    int N, CLASS_N;
     N = p_gp->N_STATION;
-    // initialize
-    for (size_t i = 0; i < N; i++)
+    CLASS_N = p_gp->CLASS_N;
+    if (CLASS_N > 0)
     {
-        *(*Solar_MAX + i) = 0.0;
-    }
-    // derive the max for each site
-    for (size_t i = 0; i < ndays_h; i++)
-    {
-        for (size_t j = 0; j < N; j++)
+        *Solar_MAX = (double *)malloc(sizeof(double) * CLASS_N * N);
+        for (size_t i = 0; i < CLASS_N * N; i++)
         {
-            for (size_t h = 0; h < 24; h++)
+            *(*Solar_MAX + i) = 0.0;
+        }
+
+        int mon;
+        int class;
+        for (size_t i = 0; i < ndays_h; i++)
+        {
+            class = (p_rrh + i)->class;
+            for (size_t j = 0; j < N; j++)
             {
-                if (
-                    (p_rrh + i)->rr_h[j][h] > *(*Solar_MAX + j)
-                )
+                for (size_t h = 0; h < 24; h++)
                 {
-                    *(*Solar_MAX + j) = (p_rrh + i)->rr_h[j][h];
+                    if (
+                        (p_rrh + i)->rr_h[j][h] > *(*Solar_MAX + j * CLASS_N + class))
+                    {
+                        *(*Solar_MAX + j * CLASS_N + class) = (p_rrh + i)->rr_h[j][h];
+                    }
                 }
             }
         }
     }
 }
 
-void Solar_MAX_filter(
+void Solar_MAX_class_preview(
+    double *Solar_MAX,
+    struct Para_global *p_gp
+) 
+{
+    int N;
+    int CLASS_N;
+    N = p_gp->N_STATION;
+    CLASS_N = p_gp->CLASS_N;
+    if (CLASS_N > 0)
+    {
+        printf("------ preview solar radiation constraints:\n");
+        printf("class    ");
+        for (size_t m = 0; m < CLASS_N; m++)
+        {
+            printf("%5d", m);
+        }
+        printf("\n");
+
+        for (size_t i = 0; i < N; i++)
+        {
+            printf("site %3d ", i);
+            for (size_t m = 0; m < CLASS_N; m++)
+            {
+                printf("%5.0f", *(Solar_MAX + i * CLASS_N + m));
+            }
+            printf("\n");
+        }
+    }
+}
+
+
+void Solar_MAX_class_filter(
     struct df_rr_h *p_rrh,
     struct df_rr_d *p_rrd,
     struct Para_global *p_gp,
     double *Solar_MAX,
     int *pool_cans,
-    int *n_can
+    int n_can,
+    int *n_can_out
 )
 {
     int N;
+    int class_t;
+    int CLASS_N;
+    class_t = p_rrd->class;
+    CLASS_N = p_gp->CLASS_N;
+
     N = p_gp->N_STATION;
-    double *fragments;
     double *out_temp;
     out_temp = (double *)malloc(sizeof(double) * 24);
     int flag;
     int id = 0;
-    for (size_t i = 0; i < *n_can; i++)
+    for (size_t i = 0; i < n_can; i++)
     {
         flag = 1;
         size_t j = 0;
@@ -221,7 +262,7 @@ void Solar_MAX_filter(
             for (size_t h = 0; h < 24; h++)
             {
                 *(out_temp + h) = p_rrd->p_rr[j] * (p_rrh + pool_cans[i])->rr_h[j][h] / (p_rrh + pool_cans[i])->rr_d[j]; 
-                if (*(out_temp + h) > *(Solar_MAX + j))
+                if (*(out_temp + h) > *(Solar_MAX + j * CLASS_N + class_t))
                 {
                     flag = 0;
                     break;
@@ -235,8 +276,9 @@ void Solar_MAX_filter(
             id++;
         }
     }
-    *n_can = id;
+    *n_can_out = id;
 }
+
 
 
 void similarity_SSIM_solar(
