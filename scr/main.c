@@ -160,7 +160,8 @@ int main(int argc, char * argv[]) {
         "* the last day:  %d-%02d-%02d\n", 
         df_dly[nrow_rr_d-1].date.y,df_dly[nrow_rr_d-1].date.m,df_dly[nrow_rr_d-1].date.d
     );
-
+    printf("* the total classes:  %d\n", p_gp->CLASS_N);
+    fprintf(p_log, "* the total classes:  %d\n", p_gp->CLASS_N);
     view_class_rrd(df_dly, nrow_rr_d);
 
     /****** import hourly rainfall data (obs as fragments) *******/
@@ -228,14 +229,14 @@ int main(int argc, char * argv[]) {
     printf("------ Disaggregating: ... \n");
     if (p_gp->VAR == 5)
     {   // VAR:5  solar radiation
-        double *Solar_MAX;
-        Solar_MAX = (double *)malloc(sizeof(double) * p_gp->N_STATION);
-        Solar_MAX_derive(&Solar_MAX, df_hly, p_gp, ndays_h);
+        double *solar_max;
+        Solar_MAX_class_derive(&solar_max, df_hly, p_gp, ndays_h);
+        Solar_MAX_class_preview(solar_max, p_gp);
         kNN_MOF_solar(
             df_hly,
             df_dly,
             p_gp,
-            Solar_MAX,
+            solar_max,
             nrow_rr_d,
             ndays_h);
     } else {
