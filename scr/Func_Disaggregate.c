@@ -138,14 +138,23 @@ void kNN_MOF_SSIM(
             index = n_can;
         }
         
-        // index:  the number of candidates after class filtering
-        if (index == 0)
+        if (p_gp->VAR == 3)
         {
-            printf("No candidates for step: %d!\n", i);
-            exit(1);
+            // VAR 3: rhu, no greater than 100%
+            Rhu_MAX_class_filter(p_rrh, p_rrd + i, p_gp, pool_cans, n_can, &index);
         }
-        n_can = index;
-
+        
+        // index:  the number of candidates after filtering
+        // if (index == 0)
+        // {
+        //     printf("No candidates for step: %d!\n", i);
+        //     exit(1);
+        // }
+        if (index > 0)
+        {
+            n_can = index;
+        }
+        
         int *index_fragment;
         index_fragment = (int *)malloc(sizeof(int) * p_gp->RUN);
         if (i >= skip && i < nrow_rr_d - skip)
@@ -278,3 +287,50 @@ void kNN_SSIM_sampling(
     free(SSIM);
 }
 
+
+void Rhu_MAX_class_filter(
+    struct df_rr_h *p_rrh,
+    struct df_rr_d *p_rrd,
+    struct Para_global *p_gp,
+    int *pool_cans,
+    int n_can,
+    int *n_can_out
+)
+{
+    double rhu_max = 110;
+    int N;
+    int class_t;
+    int CLASS_N;
+    class_t = p_rrd->class;
+    CLASS_N = p_gp->CLASS_N;
+
+    N = p_gp->N_STATION;
+    double *out_temp;
+    out_temp = (double *)malloc(sizeof(double) * 24);
+    int flag;
+    int id = 0;
+    for (size_t i = 0; i < n_can; i++)
+    {
+        flag = 1;
+        size_t j = 0;
+        while (flag == 1 && j < N)
+        {
+            for (size_t h = 0; h < 24; h++)
+            {
+                *(out_temp + h) = p_rrd->p_rr[j] * (p_rrh + pool_cans[i])->rr_h[j][h] / (p_rrh + pool_cans[i])->rr_d[j]; 
+                if (*(out_temp + h) > rhu_max)
+                {
+                    flag = 0;
+                    break;
+                }
+            } 
+            j++;
+        }
+        if (flag == 1)
+        {
+            pool_cans[id] = pool_cans[i];
+            id++;
+        }
+    }
+    *n_can_out = id;
+}

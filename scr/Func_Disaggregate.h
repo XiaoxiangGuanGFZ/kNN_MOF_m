@@ -26,5 +26,14 @@ void kNN_SSIM_sampling(
 );
 
 
+void Rhu_MAX_class_filter(
+    struct df_rr_h *p_rrh,
+    struct df_rr_d *p_rrd,
+    struct Para_global *p_gp,
+    int *pool_cans,
+    int n_can,
+    int *n_can_out
+);
+
 
 #endif
