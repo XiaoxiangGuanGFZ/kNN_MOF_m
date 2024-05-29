@@ -11,8 +11,7 @@
  *               - the similarity is represented by SSIM (structural Similarity Index Measure)
  *               - kNN is used to consider the uncertainty or variability 
  * DESCRIP-END.
- * FUNCTIONS:    kNN_MOF_SSIM(); kNN_SSIM_sampling();
- *               get_random(); weight_cdf_sample(); 
+ * FUNCTIONS:    kNN_MOF_SSIM();  kNN_SSIM_sampling(); Rhu_MAX_class_filter();
  * 
  * COMMENTS:
  * 
@@ -134,12 +133,12 @@ void kNN_MOF_SSIM(
                     index += 1;
                 }
             }
-        } else {
-            index = n_can;
+            n_can = index;
         }
         
         if (p_gp->VAR == 3)
         {
+            index = 0;
             // VAR 3: rhu, no greater than 100%
             Rhu_MAX_class_filter(p_rrh, p_rrd + i, p_gp, pool_cans, n_can, &index);
         }
@@ -234,38 +233,62 @@ void kNN_SSIM_sampling(
     double *SSIM;  // the distance between target day and candidate days
     double SSIM_temp;
     SSIM = (double *)malloc(n_can * sizeof(double));
-    
+
     /** compute mean-SSIM between target and candidate images **/
-    for (i = 0; i < n_can; i++)
+    if (f_prep == 0)
     {
-        *(SSIM + i) = 0.0;
-        for (s = 0-skip; s < 1+skip; s++)
+        for (i = 0; i < n_can; i++)
         {
-            if (
-                p_gp->VAR == 4 &&
-                (SUN_dark(p_gp->N_STATION, (p_rrd + index_target + s)->p_rr) == 1 ||
-                 SUN_dark(p_gp->N_STATION, (p_rrh + pool_cans[i] + s)->rr_d) == 1))
+            *(SSIM + i) = 0.0;
+            for (s = 0 - skip; s < 1 + skip; s++)
             {
-                SSIM_temp = 0.0;
+                if (
+                    p_gp->VAR == 4 &&
+                    (SUN_dark(p_gp->N_STATION, (p_rrd + index_target + s)->p_rr) == 1 ||
+                     SUN_dark(p_gp->N_STATION, (p_rrh + pool_cans[i] + s)->rr_d) == 1))
+                {
+                    SSIM_temp = 0.0;
+                }
+                else
+                {
+                    SSIM_temp = w_image[s + skip] * meanSSIM(
+                                                        (p_rrd + index_target + s)->p_rr,
+                                                        (p_rrh + pool_cans[i] + s)->rr_d,
+                                                        p_gp->NODATA,
+                                                        p_gp->N_STATION,
+                                                        p_gp->k,
+                                                        p_gp->power);
+                }
+                *(SSIM + i) += SSIM_temp;
             }
-            else
+        }
+    }
+    else
+    {
+        for (i = 0; i < n_can; i++)
+        {
+            *(SSIM + i) = 0.0;
+            for (s = 0 - skip; s < 1 + skip; s++)
             {
-                // SSIM_temp = w_image[s + skip] * meanSSIM(
-                //                                     (p_rrd + index_target + s)->p_rr,
-                //                                     (p_rrh + pool_cans[i] + s)->rr_d,
-                //                                     p_gp->NODATA,
-                //                                     p_gp->N_STATION,
-                //                                     p_gp->k,
-                //                                     p_gp->power);
-                SSIM_temp = w_image[s + skip] * meanSSIM(
-                                                    (p_rrd + index_target + s)->p_rr_nom,
-                                                    (p_rrh + pool_cans[i] + s)->rr_d_nom,
-                                                    p_gp->NODATA,
-                                                    p_gp->N_STATION,
-                                                    p_gp->k,
-                                                    p_gp->power);
+                if (
+                    p_gp->VAR == 4 &&
+                    (SUN_dark(p_gp->N_STATION, (p_rrd + index_target + s)->p_rr) == 1 ||
+                     SUN_dark(p_gp->N_STATION, (p_rrh + pool_cans[i] + s)->rr_d) == 1))
+                {
+                    SSIM_temp = 0.0;
+                }
+                else
+                {
+                    SSIM_temp = w_image[s + skip] * meanSSIM(
+                                                        (p_rrd + index_target + s)->p_rr_pre,
+                                                        (p_rrh + pool_cans[i] + s)->p_rr_pre,
+                                                        p_gp->NODATA,
+                                                        p_gp->N_STATION,
+                                                        p_gp->k,
+                                                        p_gp->power);
+                }
+                *(SSIM + i) += SSIM_temp;
             }
-            *(SSIM + i) += SSIM_temp;
         }
     }
 
@@ -297,7 +320,7 @@ void Rhu_MAX_class_filter(
     int *n_can_out
 )
 {
-    double rhu_max = 110;
+    double rhu_max = 100;
     int N;
     int class_t;
     int CLASS_N;

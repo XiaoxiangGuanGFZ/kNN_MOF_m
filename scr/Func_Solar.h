@@ -2,6 +2,7 @@
 #define FUNC_SOLAR
 
 extern FILE *p_SSIM;
+extern int f_prep; 
 
 void kNN_MOF_solar(
     struct df_rr_h *p_rrh,
