@@ -46,6 +46,14 @@ void import_global(
      *      return a structure containing the key fields
      * ********************/
 
+    /***** initializae *****/
+    p_gp->PREPROCESS = 0;
+    strcpy(p_gp->T_CP, "FALSE");
+    strcpy(p_gp->MONTH, "TRUE");
+    strcpy(p_gp->SEASON, "FALSE");
+    p_gp->CONTINUITY = 1;
+    p_gp->RUN = 1;
+
     char row[MAXCHAR];
     FILE *fp;
     char *token;
@@ -57,6 +65,7 @@ void import_global(
         printf("cannot open global parameter file: %s\n", fname);
         exit(1);
     }
+    
     while (fgets(row, MAXCHAR, fp) != NULL)
     {
         // the fgets() function comes from <stdbool.h>
@@ -163,6 +172,10 @@ void import_global(
                 else if (strncmp(token, "RUN", 3) == 0)
                 {
                     p_gp->RUN = atof(token2);
+                }
+                else if (strncmp(token, "PROP", 4) == 0)
+                {
+                    p_gp->PREPROCESS = atof(token2);
                 }
                 /*******
                  * SSIM parameter

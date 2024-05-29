@@ -100,6 +100,13 @@ struct Para_global
         double power[3];        // 3 paras in SSIM
         double NODATA;          // nodata value
         int RUN;                // simulation runs 
+        int PREPROCESS;         // preprocess the data by normalization or standardization
+        /**********
+         * PREPROCESS:
+         * 0: none
+         * 1: normalization
+         * 2: standardization
+         * ********/
     };
 
 
