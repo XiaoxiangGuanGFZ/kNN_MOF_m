@@ -136,12 +136,20 @@ int main(int argc, char * argv[]) {
 
     /****** Disaggregation: kNN_MOF_cp *******/
 
-    if ((p_SSIM = fopen("D:/kNN_MOF_m/SSIM.csv", "w")) == NULL)
+    if (strncmp(p_gp->FP_SSIM, "FALSE", 5) == 0)
     {
-        printf("Cannot create / open SSIM file\n");
-        exit(1);
+        p_SSIM = NULL;
     }
-    fprintf(p_SSIM, "target,ID,index_Frag,SSIM,candidate\n");
+    else 
+    {
+        if ((p_SSIM = fopen(p_gp->FP_SSIM, "w")) == NULL)
+        {
+            printf("Cannot create / open SSIM file: %s\n", p_gp->FP_SSIM);
+            exit(1);
+        }
+        fprintf(p_SSIM, "target,ID,index_Frag,SSIM,candidate\n");
+    }
+    
     printf("------ Disaggregating: ... \n");
     if (p_gp->VAR == 5)
     {   // VAR:5  solar radiation
