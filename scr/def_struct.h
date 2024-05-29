@@ -22,7 +22,7 @@ struct df_rr_d
      */
     struct Date date;    
     double *p_rr;
-    double *p_rr_nom;  // data series at daily scale after normalization
+    double *p_rr_pre;  // data series at daily scale after preprocessing
     int cp;
     int SM;         // summer or winter; 1 or 0
     int class;      // class of the day; categorized by cp, seaspn, month or ... 
@@ -41,7 +41,7 @@ struct df_rr_h
     struct Date date;    
     double (*rr_h)[24];
     double *rr_d;     // daily data aggregated from hourly; (*rr_h)[24]
-    double *rr_d_nom; // daily data after normalization
+    double *p_rr_pre; // daily data after preprocessing
     int cp;
     int SM;
     int class;
