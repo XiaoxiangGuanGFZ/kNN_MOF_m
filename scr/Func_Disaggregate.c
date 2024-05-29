@@ -135,13 +135,11 @@ void kNN_MOF_SSIM(
             }
             n_can = index;
         }
-        
-        if (p_gp->VAR == 3)
-        {
-            index = 0;
-            // VAR 3: rhu, no greater than 100%
-            Rhu_MAX_class_filter(p_rrh, p_rrd + i, p_gp, pool_cans, n_can, &index);
-        }
+        // else if (p_gp->VAR == 3)
+        // {
+        //     // VAR 3: rhu, no greater than 100%
+        //     Rhu_MAX_class_filter(p_rrh, p_rrd + i, p_gp, pool_cans, n_can, &index);
+        // }
         
         // index:  the number of candidates after filtering
         // if (index == 0)
@@ -149,10 +147,10 @@ void kNN_MOF_SSIM(
         //     printf("No candidates for step: %d!\n", i);
         //     exit(1);
         // }
-        if (index > 0)
-        {
-            n_can = index;
-        }
+        // if (index > 0)
+        // {
+        //     n_can = index;
+        // }
         
         int *index_fragment;
         index_fragment = (int *)malloc(sizeof(int) * p_gp->RUN);
@@ -323,28 +321,23 @@ void Rhu_MAX_class_filter(
     int *n_can_out
 )
 {
-    double rhu_max = 120;
-    int N;
-    int class_t;
-    int CLASS_N;
-    class_t = p_rrd->class;
-    CLASS_N = p_gp->CLASS_N;
-
-    N = p_gp->N_STATION;
-    double *out_temp;
-    out_temp = (double *)malloc(sizeof(double) * 24);
+    double rhu_max = 150;
+    int N; N = p_gp->N_STATION;
+    int class_t; class_t = p_rrd->class;
+    
+    double value_temp;
     int flag;
     int id = 0;
-    for (size_t i = 0; i < n_can; i++)
+    for (size_t i = 0; i < n_can; i++) // iterator var for candidates
     {
         flag = 1;
         size_t j = 0;
-        while (flag == 1 && j < N)
+        while (flag == 1 && j < N) // iterator var for sites
         {
-            for (size_t h = 0; h < 24; h++)
+            for (size_t h = 0; h < 24; h++) // // iterator var for hour
             {
-                *(out_temp + h) = p_rrd->p_rr[j] * (p_rrh + pool_cans[i])->rr_h[j][h] / (p_rrh + pool_cans[i])->rr_d[j]; 
-                if (*(out_temp + h) > rhu_max)
+                value_temp = p_rrd->p_rr[j] * (p_rrh + pool_cans[i])->rr_h[j][h] / (p_rrh + pool_cans[i])->rr_d[j]; 
+                if (value_temp > rhu_max)
                 {
                     flag = 0;
                     break;
@@ -354,7 +347,7 @@ void Rhu_MAX_class_filter(
         }
         if (flag == 1)
         {
-            pool_cans[id] = pool_cans[i];
+            pool_cans[id] = pool_cans[i]; // id <= i always
             id++;
         }
     }

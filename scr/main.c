@@ -153,14 +153,26 @@ int main(int argc, char * argv[]) {
     printf("------ Disaggregating: ... \n");
     if (p_gp->VAR == 5)
     {   // VAR:5  solar radiation
-        double *solar_max;
-        Solar_MAX_class_derive(&solar_max, df_hly, p_gp, ndays_h);
-        Solar_MAX_class_preview(solar_max, p_gp);
+        // double *solar_max;
+        // Solar_MAX_class_derive(&solar_max, df_hly, p_gp, ndays_h);
+        // Solar_MAX_class_preview(solar_max, p_gp);
+        // kNN_MOF_solar(
+        //     df_hly,
+        //     df_dly,
+        //     p_gp,
+        //     solar_max,
+        //     nrow_rr_d,
+        //     ndays_h);
+
+        double *Solar_MAX;
+        Solar_MAX_lump_derive(&Solar_MAX, df_hly, p_gp, ndays_h);
+        Solar_MAX_lump_preview(Solar_MAX, p_gp);
+
         kNN_MOF_solar(
             df_hly,
             df_dly,
             p_gp,
-            solar_max,
+            Solar_MAX,
             nrow_rr_d,
             ndays_h);
     } else {

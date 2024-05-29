@@ -15,3 +15,8 @@ so, before SSIM, the candidates with fragments that could lead to overestimation
 I suppose before disaggregation, we should make sure the hourly data itself is clean and prone to no error.
 For the air pressure, the skewness estimated from hourly observation has outliers seemly. 
 
+the upper boundary of hourly solar radiation should be derived at monthly scale. 
+each month with constraint (Florian et al., 2023)
+The Teddy tool v1.1: temporal disaggregation of daily climate model data for climate impact analysis. 
+
+condition solar radiation and relative humidity on wet-dry status?
