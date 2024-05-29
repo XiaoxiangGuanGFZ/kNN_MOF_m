@@ -46,6 +46,29 @@ void Solar_MAX_class_filter(
     int *n_can_out
 );
 
+/********* lumped MAX ********/
+
+void Solar_MAX_lump_derive(
+    double **Solar_MAX,
+    struct df_rr_h *p_rrh,
+    struct Para_global *p_gp,
+    int ndays_h
+);
+
+void Solar_MAX_lump_preview(
+    double *Solar_MAX,
+    struct Para_global *p_gp
+);
+
+void Solar_MAX_lump_filter(
+    struct df_rr_h *p_rrh,
+    struct df_rr_d *p_rrd,
+    struct Para_global *p_gp,
+    double *Solar_MAX,
+    int *pool_cans,
+    int n_can,
+    int *n_can_out
+);
 
 
 #endif
