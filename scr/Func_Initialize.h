@@ -50,19 +50,6 @@ void view_class_rrh(
     int nrow_rr_d
 );
 
-/********
- * funcs for normalization of dly data
- * ******/
-void Normalize_d(
-    struct Para_global *p_gp,
-    struct df_rr_d *p_rr_d,
-    int nrow_rr_d
-);
 
-void Normalize_h(
-    struct Para_global *p_gp,
-    struct df_rr_h *p_rr_h,
-    int nrow_rr_d
-);
 
 #endif
