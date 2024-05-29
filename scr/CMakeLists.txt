@@ -15,6 +15,8 @@ set(SOURCE_FILES
     Func_dataIO.c
     Func_Fragments.c
     Func_Initialize.c
+    Func_Prepro.c
+    Func_Print.c
     Func_SSIM.c
     Func_kNN.c
     Func_Disaggregate.c
