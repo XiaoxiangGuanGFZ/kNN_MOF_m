@@ -224,13 +224,13 @@ void kNN_SSIM_sampling(
         printf("Currently CONTUNITY > 5 is not possible!\n");
         exit(1);
     }
-    
-    int i, j, s;  // iteration variable
-    int temp_c;  // temporary variable during sorting 
-    double temp_d;
-    double rd = 0.0;  // a random decimal value between 0.0 and 1.0
 
-    double *SSIM;  // the distance between target day and candidate days
+    int i, j, s; // iteration variable
+    int temp_c;  // temporary variable during sorting
+    double temp_d;
+    double rd = 0.0; // a random decimal value between 0.0 and 1.0
+
+    double *SSIM; // the distance between target day and candidate days
     double SSIM_temp;
     SSIM = (double *)malloc(n_can * sizeof(double));
 
@@ -298,15 +298,18 @@ void kNN_SSIM_sampling(
     /**********
      * print the largest k SSIM values and corresponding candidate dates
      * ********/
-    int size_pool; // the k in kNN
-    size_pool = (int)sqrt(n_can) + 1;
-    for (i = 0; i < size_pool; i++)
+    if (p_SSIM != NULL)
     {
-        fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd + index_target)->date.y, (p_rrd + index_target)->date.m, (p_rrd + index_target)->date.d);
-        fprintf(p_SSIM, "%d,%d,%f,", i, pool_cans[i], SSIM[i]);
-        fprintf(p_SSIM, "%d-%02d-%02d\n", (p_rrh + pool_cans[i])->date.y, (p_rrh + pool_cans[i])->date.m, (p_rrh + pool_cans[i])->date.d);
+        int size_pool; // the k in kNN
+        size_pool = (int)sqrt(n_can) + 1;
+        for (i = 0; i < size_pool; i++)
+        {
+            fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd + index_target)->date.y, (p_rrd + index_target)->date.m, (p_rrd + index_target)->date.d);
+            fprintf(p_SSIM, "%d,%d,%f,", i, pool_cans[i], SSIM[i]);
+            fprintf(p_SSIM, "%d-%02d-%02d\n", (p_rrh + pool_cans[i])->date.y, (p_rrh + pool_cans[i])->date.m, (p_rrh + pool_cans[i])->date.d);
+        }
     }
-
+    
     free(SSIM);
 }
 
@@ -320,7 +323,7 @@ void Rhu_MAX_class_filter(
     int *n_can_out
 )
 {
-    double rhu_max = 100;
+    double rhu_max = 120;
     int N;
     int class_t;
     int CLASS_N;

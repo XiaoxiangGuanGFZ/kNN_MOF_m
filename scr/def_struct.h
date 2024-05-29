@@ -76,7 +76,7 @@ struct Para_global
         char FP_HOURLY[200];    // file path of hourly precipitation data (as fragments)
         char FP_OUT[200];       // file path of output(hourly) precipitation from disaggregation
         char FP_LOG[200];       // file path of log file
-
+        char FP_SSIM[200];      // file path and name to SSIM output
         /*****
          * the covariate (both daily and hourly) data should share the 
          * same dimension (time coverage and space or sites domain) with 

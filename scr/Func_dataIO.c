@@ -51,6 +51,7 @@ void import_global(
     strcpy(p_gp->T_CP, "FALSE");
     strcpy(p_gp->MONTH, "TRUE");
     strcpy(p_gp->SEASON, "FALSE");
+    strcpy(p_gp->FP_SSIM, "FALSE");
     p_gp->CONTINUITY = 1;
     p_gp->RUN = 1;
 
@@ -119,6 +120,10 @@ void import_global(
                 {
                     strcpy(p_gp->FP_LOG, token2);
                 }
+                else if (strncmp(token, "FP_SSIM", 7) == 0)
+                {
+                    strcpy(p_gp->FP_SSIM, token2);
+                }
                 /****
                  * covaruate variable
                  * ****/
@@ -173,7 +178,7 @@ void import_global(
                 {
                     p_gp->RUN = atof(token2);
                 }
-                else if (strncmp(token, "PROP", 4) == 0)
+                else if (strncmp(token, "PREP", 4) == 0)
                 {
                     p_gp->PREPROCESS = atof(token2);
                 }
@@ -195,7 +200,7 @@ void import_global(
                 else
                 {
                     printf(
-                        "Error in opening global parameter file: unrecognized parameter field!");
+                        "Error in opening global parameter file: unrecognized parameter field! %s", token);
                     exit(1);
                 }
             }

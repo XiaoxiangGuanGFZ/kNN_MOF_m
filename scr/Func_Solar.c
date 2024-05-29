@@ -123,14 +123,18 @@ void kNN_MOF_solar(
         index_fragment = (int *)malloc(sizeof(int) * p_gp->RUN);
         kNN_sampling(SSIM, pool_cans, order, n_can, p_gp->RUN, index_fragment);
 
-        int size_pool; // the k in kNN
-        size_pool = (int)sqrt(n_can) + 1;
-        for (j = 0; j < size_pool; j++)
+        if (p_SSIM != NULL)
         {
-            fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd + i)->date.y, (p_rrd + i)->date.m, (p_rrd + i)->date.d);
-            fprintf(p_SSIM, "%d,%d,%f,", j, pool_cans[j], SSIM[j]);
-            fprintf(p_SSIM, "%d-%02d-%02d\n", (p_rrh + pool_cans[j])->date.y, (p_rrh + pool_cans[j])->date.m, (p_rrh + pool_cans[j])->date.d);
+            int size_pool; // the k in kNN
+            size_pool = (int)sqrt(n_can) + 1;
+            for (j = 0; j < size_pool; j++)
+            {
+                fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd + i)->date.y, (p_rrd + i)->date.m, (p_rrd + i)->date.d);
+                fprintf(p_SSIM, "%d,%d,%f,", j, pool_cans[j], SSIM[j]);
+                fprintf(p_SSIM, "%d-%02d-%02d\n", (p_rrh + pool_cans[j])->date.y, (p_rrh + pool_cans[j])->date.m, (p_rrh + pool_cans[j])->date.d);
+            }
         }
+
         for (size_t t = 0; t < p_gp->RUN; t++)
         {
             /*assign the sampled fragments to target day (disaggregation)*/
