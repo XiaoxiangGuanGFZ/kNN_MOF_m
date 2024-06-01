@@ -144,10 +144,10 @@ int main(int argc, char * argv[]) {
     {
         if ((p_SSIM = fopen(p_gp->FP_SSIM, "w")) == NULL)
         {
-            printf("Cannot create / open SSIM file: %s\n", p_gp->FP_SSIM);
+            printf("Cannot create / open SIMILARITY file: %s\n", p_gp->FP_SSIM);
             exit(1);
         }
-        fprintf(p_SSIM, "target,ID,index_Frag,SSIM,candidate\n");
+        fprintf(p_SSIM, "target,ID,index_Frag,SIMI,candidate\n");
     }
     
     printf("------ Disaggregating: ... \n");

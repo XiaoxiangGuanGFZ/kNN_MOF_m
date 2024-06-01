@@ -35,25 +35,28 @@ void Print_gp(
     
     char VARname[20] = ""; VAR_NAME(p_gp->VAR, VARname);
     printf(
-        "------ Disaggregation parameters: -----\nVAR: %s\nMONTH: %s\nN_STATION: %d\nCONTINUITY: %d\nSEASON: %s\n",
-        VARname, p_gp->MONTH, p_gp->N_STATION, p_gp->CONTINUITY, p_gp->SEASON
+        "------ Disaggregation parameters: -----\nVAR: %s\nSIMILARITY: %s\nMONTH: %s\nN_STATION: %d\nCONTINUITY: %d\nSEASON: %s\n",
+        VARname, p_gp->SIMILARITY, p_gp->MONTH, p_gp->N_STATION, p_gp->CONTINUITY, p_gp->SEASON
     );
     fprintf(
         p_log,
-        "------ Disaggregation parameters: -----\nVAR: %s\nMONTH: %s\nN_STATION: %d\nCONTINUITY: %d\nSEASON: %s\n",
-        VARname, p_gp->MONTH, p_gp->N_STATION, p_gp->CONTINUITY, p_gp->SEASON
+        "------ Disaggregation parameters: -----\nVAR: %s\nSIMILARITY: %s\nMONTH: %s\nN_STATION: %d\nCONTINUITY: %d\nSEASON: %s\n",
+        VARname, p_gp->SIMILARITY, p_gp->MONTH, p_gp->N_STATION, p_gp->CONTINUITY, p_gp->SEASON
     );
     if (strncmp(p_gp->SEASON, "TRUE", 4) == 0)
     {
         printf("SUMMER: %d-%d\n", p_gp->SUMMER_FROM, p_gp->SUMMER_TO);
         fprintf(p_log,"SUMMER: %d-%d\n", p_gp->SUMMER_FROM, p_gp->SUMMER_TO);
     }
-    printf("SSIM_K: %f,%f,%f\nSSIM_power: %f,%f,%f\nNODATA: %f\n",
-           p_gp->k[0], p_gp->k[1], p_gp->k[2], p_gp->power[0], p_gp->power[1], p_gp->power[2],
-           p_gp->NODATA);
-    fprintf(p_log, "SSIM_K: %f,%f,%f\nSSIM_power: %f,%f,%f\nNODATA: %f\n",
-            p_gp->k[0], p_gp->k[1], p_gp->k[2], p_gp->power[0], p_gp->power[1], p_gp->power[2],
-            p_gp->NODATA);
+    if (strncmp(p_gp->SIMILARITY, "SSIM", 4) == 0)
+    {
+        printf("SSIM_K: %f,%f,%f\nSSIM_power: %f,%f,%f\nNODATA: %f\n",
+               p_gp->k[0], p_gp->k[1], p_gp->k[2], p_gp->power[0], p_gp->power[1], p_gp->power[2],
+               p_gp->NODATA);
+        fprintf(p_log, "SSIM_K: %f,%f,%f\nSSIM_power: %f,%f,%f\nNODATA: %f\n",
+                p_gp->k[0], p_gp->k[1], p_gp->k[2], p_gp->power[0], p_gp->power[1], p_gp->power[2],
+                p_gp->NODATA);
+    }
 }
 
 void Print_cp(

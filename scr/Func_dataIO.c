@@ -124,7 +124,11 @@ void import_global(
                 {
                     strcpy(p_gp->FP_SSIM, token2);
                 }
-                /****
+                else if (strncmp(token, "SIMI", 4) == 0)
+                {
+                    strcpy(p_gp->SIMILARITY, token2);
+                }
+                /******
                  * covaruate variable
                  * ****/
                 // else if (strncmp(token, "FP_COV_DLY", 10) == 0)
@@ -206,7 +210,7 @@ void import_global(
             }
         }
     }
-    fclose(fp);
+    fclose(fp);    
 }
 
 void removeLeadingSpaces(char *str)

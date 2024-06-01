@@ -16,6 +16,7 @@ set(SOURCE_FILES
     Func_Fragments.c
     Func_Initialize.c
     Func_Prepro.c
+    Func_MD.c
     Func_Print.c
     Func_SSIM.c
     Func_kNN.c

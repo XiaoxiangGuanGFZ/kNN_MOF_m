@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "def_struct.h"
 #include "Func_kNN.h"
 #include "Func_Solar.h"
+#include "Func_MD.h"
 #include "Func_Fragments.h"
 #include "Func_dataIO.h"
 #include "Func_SSIM.h"
@@ -35,6 +37,12 @@ void kNN_MOF_solar(
      * - 0: sort the similarity metric in increasing order: Distance
      * ******/
     int order = 1;
+    if (strncmp(p_gp->SIMILARITY, "SSIM", 4) == 0)
+    {
+        order = 1;   // SSIM
+    } else {
+        order = 0;   // Manhattan_distance
+    }
     struct df_rr_h df_rr_h_out; // this is a struct variable, not a struct array;
     
     /************
@@ -111,8 +119,8 @@ void kNN_MOF_solar(
         /*******************
          * hourly maximum check
          * ******************/
-        double *SSIM;
-        SSIM = (double *)malloc(n_can * sizeof(double)); // the SSIM between target day and candidate days
+        double *SIMI;
+        SIMI = (double *)malloc(n_can * sizeof(double)); // the SIMI between target day and candidate days
 
         int skip_temp;
         if (i >= skip && i < nrow_rr_d - skip)
@@ -121,14 +129,14 @@ void kNN_MOF_solar(
         } else {
             skip_temp = 0;
         }
-        similarity_SSIM_solar(p_rrd, p_rrh, p_gp, i, pool_cans, n_can, skip_temp, SSIM);
+        similarity_solar(p_rrd, p_rrh, p_gp, i, pool_cans, n_can, skip_temp, order, SIMI);
         
         /*******
          * sample the candidates, assign the fragments and then write the output
          * *****/
         int *index_fragment;
         index_fragment = (int *)malloc(sizeof(int) * p_gp->RUN);
-        kNN_sampling(SSIM, pool_cans, order, n_can, p_gp->RUN, index_fragment);
+        kNN_sampling(SIMI, pool_cans, order, n_can, p_gp->RUN, index_fragment);
 
         if (p_SSIM != NULL)
         {
@@ -137,7 +145,7 @@ void kNN_MOF_solar(
             for (j = 0; j < size_pool; j++)
             {
                 fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd + i)->date.y, (p_rrd + i)->date.m, (p_rrd + i)->date.d);
-                fprintf(p_SSIM, "%d,%d,%f,", j, pool_cans[j], SSIM[j]);
+                fprintf(p_SSIM, "%d,%d,%f,", j, pool_cans[j], SIMI[j]);
                 fprintf(p_SSIM, "%d-%02d-%02d\n", (p_rrh + pool_cans[j])->date.y, (p_rrh + pool_cans[j])->date.m, (p_rrh + pool_cans[j])->date.d);
             }
         }
@@ -152,7 +160,7 @@ void kNN_MOF_solar(
 
         printf("%d-%02d-%02d: Done!\n", (p_rrd+i)->date.y, (p_rrd+i)->date.m, (p_rrd+i)->date.d);
         free(df_rr_h_out.rr_h);  // free the memory allocated for disaggregated hourly output
-        free(SSIM);
+        free(SIMI);
     }
     fclose(p_FP_OUT);
 }
@@ -375,7 +383,7 @@ void Solar_MAX_lump_filter(
 }
 
 
-void similarity_SSIM_solar(
+void similarity_solar(
     struct df_rr_d *p_rrd,
     struct df_rr_h *p_rrh,
     struct Para_global *p_gp,
@@ -383,7 +391,8 @@ void similarity_SSIM_solar(
     int *pool_cans,
     int n_can,
     int skip,
-    double *SSIM
+    int order,
+    double *SIMI
 )
 {
     double w_image[5] = {0.08333333, 0.1666667, 0.5, 0.1666667, 0.08333333};  // CONTUNITY == 5
@@ -402,36 +411,45 @@ void similarity_SSIM_solar(
     }
     
     int i, s;    // iteration variable
-    int temp_c;  // temporary variable during sorting
-    double temp_d;
-    double SSIM_temp;
-    /** compute mean-SSIM between target and candidate images **/
+    double SIMI_temp;
+    /** compute mean-SIMI between target and candidate images **/
     if (f_prep == 0)
     {
         // no preprocessing
         for (i = 0; i < n_can; i++)
         {
-            *(SSIM + i) = 0.0;
+            *(SIMI + i) = 0.0;
             for (s = 0 - skip; s < 1 + skip; s++)
             {
                 if (
-                    p_gp->VAR == 4 &&
+                    p_gp->VAR == 4 && order == 1 &&
                     (SUN_dark(p_gp->N_STATION, (p_rrd + index_target + s)->p_rr) == 1 ||
                      SUN_dark(p_gp->N_STATION, (p_rrh + pool_cans[i] + s)->rr_d) == 1))
                 {
-                    SSIM_temp = 0.0;
+                    SIMI_temp = 0.0;
                 }
                 else
                 {
-                    SSIM_temp = w_image[s + skip] * meanSSIM(
-                                                        (p_rrd + index_target + s)->p_rr,
-                                                        (p_rrh + pool_cans[i] + s)->rr_d,
-                                                        p_gp->NODATA,
-                                                        p_gp->N_STATION,
-                                                        p_gp->k,
-                                                        p_gp->power);
+                    if (order == 1)
+                    {
+                        SIMI_temp = w_image[s + skip] * meanSSIM(
+                                                            (p_rrd + index_target + s)->p_rr,
+                                                            (p_rrh + pool_cans[i] + s)->rr_d,
+                                                            p_gp->NODATA,
+                                                            p_gp->N_STATION,
+                                                            p_gp->k,
+                                                            p_gp->power);
+                    }
+                    else
+                    {
+
+                        SIMI_temp = w_image[s + skip] * Manhattan_distance(
+                                                            (p_rrd + index_target + s)->p_rr,
+                                                            (p_rrh + pool_cans[i] + s)->rr_d,
+                                                            p_gp->N_STATION);
+                    }
                 }
-                *(SSIM + i) += SSIM_temp;
+                *(SIMI + i) += SIMI_temp;
             }
         }
     }
@@ -440,27 +458,37 @@ void similarity_SSIM_solar(
         // with preprocessing 
         for (i = 0; i < n_can; i++)
         {
-            *(SSIM + i) = 0.0;
+            *(SIMI + i) = 0.0;
             for (s = 0 - skip; s < 1 + skip; s++)
             {
                 if (
-                    p_gp->VAR == 4 &&
+                    p_gp->VAR == 4 && order == 1 &&
                     (SUN_dark(p_gp->N_STATION, (p_rrd + index_target + s)->p_rr) == 1 ||
                      SUN_dark(p_gp->N_STATION, (p_rrh + pool_cans[i] + s)->rr_d) == 1))
                 {
-                    SSIM_temp = 0.0;
+                    SIMI_temp = 0.0;
                 }
                 else
                 {
-                    SSIM_temp = w_image[s + skip] * meanSSIM(
+                    if (order == 1)
+                    {
+                        SIMI_temp = w_image[s + skip] * meanSSIM(
                                                         (p_rrd + index_target + s)->p_rr_pre,
                                                         (p_rrh + pool_cans[i] + s)->p_rr_pre,
                                                         p_gp->NODATA,
                                                         p_gp->N_STATION,
                                                         p_gp->k,
                                                         p_gp->power);
+                    }
+                    else
+                    {
+                        SIMI_temp = w_image[s + skip] * Manhattan_distance(
+                                                        (p_rrd + index_target + s)->p_rr_pre,
+                                                        (p_rrh + pool_cans[i] + s)->p_rr_pre,
+                                                        p_gp->N_STATION);
+                    }
                 }
-                *(SSIM + i) += SSIM_temp;
+                *(SIMI + i) += SIMI_temp;
             }
         }
     }

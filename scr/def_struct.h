@@ -84,7 +84,9 @@ struct Para_global
          * ****/
         char FP_COV_DLY[200];   // file path and name of daily covariate data
         char FP_COV_HLY[200];   // file path and name of hourly covariate observation data
-    
+
+        char SIMILARITY[10];    // the similarity index: Manhattan or SSIM
+
         int N_STATION;          // number of stations (rain sites)
         char T_CP[10];          // toggle (flag), whether the CP is considered in the algorithm
 

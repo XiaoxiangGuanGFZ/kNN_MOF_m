@@ -33,6 +33,7 @@
 #include "def_struct.h"
 #include "Func_Fragments.h"
 #include "Func_kNN.h"
+#include "Func_MD.h"
 #include "Func_SSIM.h"
 #include "Func_Disaggregate.h"
 #include "Func_dataIO.h"
@@ -60,7 +61,14 @@ void kNN_MOF_SSIM(
      * - 1: sort the similarity metric in decreasing order: SSIM
      * - 0: sort the similarity metric in increasing order: Distance
      * ******/
+    
     int order = 1;
+    if (strncmp(p_gp->SIMILARITY, "SSIM", 4) == 0)
+    {
+        order = 1;   // SSIM
+    } else {
+        order = 0;   // Manhattan_distance
+    }
     struct df_rr_h df_rr_h_out; // this is a struct variable, not a struct array;
 
     /************
@@ -135,23 +143,7 @@ void kNN_MOF_SSIM(
             }
             n_can = index;
         }
-        // else if (p_gp->VAR == 3)
-        // {
-        //     // VAR 3: rhu, no greater than 100%
-        //     Rhu_MAX_class_filter(p_rrh, p_rrd + i, p_gp, pool_cans, n_can, &index);
-        // }
-        
-        // index:  the number of candidates after filtering
-        // if (index == 0)
-        // {
-        //     printf("No candidates for step: %d!\n", i);
-        //     exit(1);
-        // }
-        // if (index > 0)
-        // {
-        //     n_can = index;
-        // }
-        
+
         int *index_fragment;
         index_fragment = (int *)malloc(sizeof(int) * p_gp->RUN);
         if (i >= skip && i < nrow_rr_d - skip)
@@ -224,77 +216,96 @@ void kNN_SSIM_sampling(
     }
 
     int i, j, s; // iteration variable
-    int temp_c;  // temporary variable during sorting
-    double temp_d;
-    double rd = 0.0; // a random decimal value between 0.0 and 1.0
+    double *SIMI;
+    double SIMI_temp;
+    SIMI = (double *)malloc(n_can * sizeof(double));
 
-    double *SSIM; // the distance between target day and candidate days
-    double SSIM_temp;
-    SSIM = (double *)malloc(n_can * sizeof(double));
-
-    /** compute mean-SSIM between target and candidate images **/
+    /** compute the similarity: SSIM or Manhattan distance **/
     if (f_prep == 0)
     {
+        // using the data after preprocesssing
         for (i = 0; i < n_can; i++)
         {
-            *(SSIM + i) = 0.0;
+            *(SIMI + i) = 0.0;
             for (s = 0 - skip; s < 1 + skip; s++)
             {
                 if (
-                    p_gp->VAR == 4 &&
+                    p_gp->VAR == 4 && order == 1 &&
                     (SUN_dark(p_gp->N_STATION, (p_rrd + index_target + s)->p_rr) == 1 ||
                      SUN_dark(p_gp->N_STATION, (p_rrh + pool_cans[i] + s)->rr_d) == 1))
                 {
-                    SSIM_temp = 0.0;
+                    SIMI_temp = 0.0;
                 }
                 else
                 {
-                    SSIM_temp = w_image[s + skip] * meanSSIM(
-                                                        (p_rrd + index_target + s)->p_rr,
-                                                        (p_rrh + pool_cans[i] + s)->rr_d,
-                                                        p_gp->NODATA,
-                                                        p_gp->N_STATION,
-                                                        p_gp->k,
-                                                        p_gp->power);
+                    if (order == 1)
+                    {
+                        // SSIM; sorting SIMI in the decreasing order; higher SSIM, better resemblance
+                        SIMI_temp = w_image[s + skip] * meanSSIM(
+                                                            (p_rrd + index_target + s)->p_rr,
+                                                            (p_rrh + pool_cans[i] + s)->rr_d,
+                                                            p_gp->NODATA,
+                                                            p_gp->N_STATION,
+                                                            p_gp->k,
+                                                            p_gp->power);
+                    }
+                    else
+                    {
+                        // order == 0; Manhattan distance, sort SIMI in the increasing order 
+                        SIMI_temp = w_image[s + skip] * Manhattan_distance(
+                                                            (p_rrd + index_target + s)->p_rr,
+                                                            (p_rrh + pool_cans[i] + s)->rr_d,
+                                                            p_gp->N_STATION);
+                    }
                 }
-                *(SSIM + i) += SSIM_temp;
+                *(SIMI + i) += SIMI_temp;
             }
         }
     }
     else
     {
+        // no normalization or standardization
         for (i = 0; i < n_can; i++)
         {
-            *(SSIM + i) = 0.0;
+            *(SIMI + i) = 0.0;
             for (s = 0 - skip; s < 1 + skip; s++)
             {
                 if (
-                    p_gp->VAR == 4 &&
+                    p_gp->VAR == 4 && order == 1 &&
                     (SUN_dark(p_gp->N_STATION, (p_rrd + index_target + s)->p_rr) == 1 ||
                      SUN_dark(p_gp->N_STATION, (p_rrh + pool_cans[i] + s)->rr_d) == 1))
                 {
-                    SSIM_temp = 0.0;
+                    SIMI_temp = 0.0;
                 }
                 else
                 {
-                    SSIM_temp = w_image[s + skip] * meanSSIM(
-                                                        (p_rrd + index_target + s)->p_rr_pre,
-                                                        (p_rrh + pool_cans[i] + s)->p_rr_pre,
-                                                        p_gp->NODATA,
-                                                        p_gp->N_STATION,
-                                                        p_gp->k,
-                                                        p_gp->power);
+                    if (order == 1)
+                    {
+                        SIMI_temp = w_image[s + skip] * meanSSIM(
+                                                            (p_rrd + index_target + s)->p_rr_pre,
+                                                            (p_rrh + pool_cans[i] + s)->p_rr_pre,
+                                                            p_gp->NODATA,
+                                                            p_gp->N_STATION,
+                                                            p_gp->k,
+                                                            p_gp->power);
+                    }
+                    else
+                    {
+                        SIMI_temp = w_image[s + skip] * Manhattan_distance(
+                                                            (p_rrd + index_target + s)->p_rr_pre,
+                                                            (p_rrh + pool_cans[i] + s)->p_rr_pre,
+                                                            p_gp->N_STATION);
+                    }
                 }
-                *(SSIM + i) += SSIM_temp;
+                *(SIMI + i) += SIMI_temp;
             }
         }
     }
 
-    // sort the SSIM in the decreasing order
-    kNN_sampling(SSIM, pool_cans, order, n_can, run, index_fragment);
+    kNN_sampling(SIMI, pool_cans, order, n_can, run, index_fragment);
 
     /**********
-     * print the largest k SSIM values and corresponding candidate dates
+     * print the first k candidates, together with the similarity metric
      * ********/
     if (p_SSIM != NULL)
     {
@@ -303,12 +314,12 @@ void kNN_SSIM_sampling(
         for (i = 0; i < size_pool; i++)
         {
             fprintf(p_SSIM, "%d-%02d-%02d,", (p_rrd + index_target)->date.y, (p_rrd + index_target)->date.m, (p_rrd + index_target)->date.d);
-            fprintf(p_SSIM, "%d,%d,%f,", i, pool_cans[i], SSIM[i]);
+            fprintf(p_SSIM, "%d,%d,%f,", i, pool_cans[i], SIMI[i]);
             fprintf(p_SSIM, "%d-%02d-%02d\n", (p_rrh + pool_cans[i])->date.y, (p_rrh + pool_cans[i])->date.m, (p_rrh + pool_cans[i])->date.d);
         }
     }
     
-    free(SSIM);
+    free(SIMI);
 }
 
 

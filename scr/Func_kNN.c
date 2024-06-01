@@ -106,8 +106,6 @@ void similarity_weight(
             w_sum += 1.0 / (similarity[i] + 1);
         }
     }
-    
-
     for (i = 0; i < *size_pool; i++)
     {
         *(*weights + i) /= w_sum; // reassignment
