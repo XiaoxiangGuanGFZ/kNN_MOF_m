@@ -1,22 +1,51 @@
+# kNN_MOF_m
+
+## Introduction
+a non-parametric model for temporal disaggregation (here daily2hourly) of meteorological records at multiste scale
+
+## The variables
+
+We have test the performance of this model in disaggregating the following meteorological variables in Germany:
+
+- air temperature
+- air pressure
+- relative humidity
+- wind speed
+- solar radiation
+
+
 ## Algorithm
 
-for solar radiation, 
-conditioning solar radiation disaggregation on air temperature doesn't bring extra value to the performance. 
+The explanation of the terms:
+
+- kNN: k-nearest neighbor resampling
+- MOF: method of fragments
+- m: for meteorological variables
+
+The disaggregation model is developed, inspired from analogy principle, where the suitable fragments from hourly observation are filtered out to redistribute daily records into hourly scale. Structural Similarity Index Measure (SSIM) is applied in the model to quantify the resemblence between candidates and the day to disaggregate. See for more details.  
+
+## How-to-use
+### software built up
+The model is coded in C programming language. The model can be built up with the following instructions:
+
+first change the work space to the model directory, and then use CMake tool to compile the source codes and built the executable. The compiler I used is GCC from MinGW. 
+
+`cd ./kNN_MOF_m/scr/`
+
+`cmake -G "MinGW Makefiles" .`
+
+`mingw32-make`
+
+### data preparation
+
+See `./kNN_MOF_m/data_example/` for the example data. One data file contains the multisite daily records to be disaggregated and another comprises of hourly observation supplying the subdaily fragments. An extra configuration file `gp.txt` is for the model to take in the parameters which control the model behaviours. 
 
 
-there should exists a theoretical maxima of hourly radiation during one hour the surface can receive.
-The received solar radiation received by the ground surface reaches maxima when the sun shines rays
-directly (or perpendicularly), with no cloudness. 
-So, during solar radiation disaggregation, the theoretical broundry should be considered when we select 
-the candidates.
+## Reference
 
-so, before SSIM, the candidates with fragments that could lead to overestimation should be ruled out. 
+## Authors
 
-I suppose before disaggregation, we should make sure the hourly data itself is clean and prone to no error.
-For the air pressure, the skewness estimated from hourly observation has outliers seemly. 
+[Xiaoxiang Guan](https://www.gfz-potsdam.de/staff/guan.xiaoxiang/sec44)
 
-the upper boundary of hourly solar radiation should be derived at monthly scale. 
-each month with constraint (Florian et al., 2023)
-The Teddy tool v1.1: temporal disaggregation of daily climate model data for climate impact analysis. 
+E-mail: guan@gfz-potsdam.de
 
-condition solar radiation and relative humidity on wet-dry status?

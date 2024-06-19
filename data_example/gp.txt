@@ -4,38 +4,63 @@
 #-------------------
 
 # ------- disaggregation setup ---------
-VAR,0
+# **************
+# VAR  weather field              N_STATION
+# 0    air_temperature            194
+# 1    wind( speed)               196
+# 2    (air )pressure             164
+# 3    rhu(relative humidity)     177
+# 4    sun(sunshine duration)     147
+# 5    solar                      19
+# **************
+
+VAR,5
+
+# the file path and name of the circulation pattern classification data
+FP_CP,../data/cp.csv
+
 # the file path and name of daily rr data to be disaggregated
-FP_DAILY,../data_example/dly_air_temperature.csv
+FP_DAILY,../data_cov/dly_solar.csv
 
 # the file path and name of the observed hourly rainfall data
-FP_HOURLY,../data_example/hly_air_temperature.csv
+FP_HOURLY,../data_cov/hly_solar.csv
 
 # the file path to store the disaggregated hourly rr results
-FP_OUT,../output/sim_air_temperature.csv
+FP_OUT,../output/sim_solar.csv
 
+# the file path and name to the log file
 FP_LOG,../my.log
 
+# the file path and name to save the similarity metric data 
+FP_SSIM,../SSIM.csv
+
 # ------- the parameters in kNN_MOF_SSIM algorithm ---------
-# number of the rain stations
-N_STATION,194
+# the similarity measure for candidate day resampling: SSIM or Manhattan (distance)
+SIMI,Manhattan
+
+# number of station in the variable network
+N_STATION,19
 
 # T_CP == TRUE: the disaggregation algorithm conditioned on circulation patterns
-# otherwise, on seasonality (12 months) only
-MONTH,TRUE
+T_CP,TRUE
 
-# SEASON: only valid when T_CP == TRUE; meaning that the disaggregation is conditioned both
-# on cp and seasonality (two seasons: summer and winter)
-# summer: from May to October (5-10)
+# MONTH == TRUE: the disaggregation algorithm conditioned on 12 months
+MONTH,FALSE
+
+# SEASON: meaning that the disaggregation is conditioned on seasonality (two seasons: summer and winter)
+# summer: from May to October (5-10) for Germany
 # winter: from November to next April (11-4)
-SEASON,FALSE
+SEASON,TRUE
 
 SUMMER_FROM,5
 
 SUMMER_TO,10
 
-# the CONTINUITY in candidates filtering; 1 or 3
-CONTINUITY,1
+# preprocessing of the data: none [0], normalization [1] or standardization [2]
+PREP,0
+
+# the CONTINUITY in candidates (analog) filtering; 1 or 3
+CONTINUITY,3
 
 # Structural Similarity Index (SSIM) parameters
 SSIM_K,0.01,0.03,0.0212
